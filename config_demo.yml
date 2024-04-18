@@ -1,0 +1,34 @@
+project:
+  name: example_1
+  data_dir: path/to/root/dir
+aoi:
+  huc_ids: ["01020004"]
+  nhd_featureids: []
+  geometry_file: ""
+  drainage_network: true
+forcing:
+  source: daymet
+  start_date: 2000-01-01
+  end_date: 2019-12-30
+  resolution_km: 4
+  variables: [prcp, tmin, pet, snow]
+topo:
+  resolution_m: 10
+  derived_variables: [slope, aspect]
+gnatsgo:
+  variables: [por, tk0_999a]
+nlcd:
+  variables: [cover]
+  years: [2016]
+nid:
+  federal_ids: []
+  within_aio: true
+remote_datasets:
+  service_names: [ndvi]
+  service_types: [netcdfsubset]
+  urls: [https://thredds.daac.ornl.gov/thredds/ncss/ornldaac/1299]
+streamflow:
+  gage_ids: ["01031500", "01031450"]
+  start_date: 2000-01-01
+  end_date: 2019-12-30
+  frequency: daily
