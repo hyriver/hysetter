@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import functools
-from typing import Any
+from datetime import datetime  # noqa: TCH003
 from pathlib import Path
-from datetime import datetime
-from pydantic import BaseModel
-import yaml
+from typing import Any
 
+import yaml
+from pydantic import BaseModel
 
 __all__ = ["read_config"]
 
@@ -38,11 +38,13 @@ class Project(BaseModel):
     name: str
     data_dir: str
 
+
 class AOI(BaseModel):
     huc_ids: list[str]
     nhd_featureids: list[int]
     geometry_file: str
     drainage_network: bool
+
 
 class Forcing(BaseModel):
     source: str
@@ -51,31 +53,38 @@ class Forcing(BaseModel):
     resolution_km: int
     variables: list[str]
 
+
 class Topo(BaseModel):
     resolution_m: int
     derived_variables: list[str]
 
+
 class GNATSGO(BaseModel):
     variables: list[str]
+
 
 class NLCD(BaseModel):
     variables: list[str]
     years: list[int]
 
+
 class NID(BaseModel):
     federal_ids: list[str]
     within_aio: bool
+
 
 class RemoteDatasets(BaseModel):
     service_names: list[str]
     service_types: list[str]
     urls: list[str]
 
+
 class Streamflow(BaseModel):
     gage_ids: list[str]
     start_date: datetime
     end_date: datetime
     frequency: str
+
 
 class Config(BaseModel):
     project: Project
@@ -88,7 +97,8 @@ class Config(BaseModel):
     remote_datasets: RemoteDatasets | None = None
     streamflow: Streamflow | None = None
 
-def read_config(file_path: str | Path)-> Config:
+
+def read_config(file_path: str | Path) -> Config:
     """Read a configuration file and return a Config object.
 
     Parameters

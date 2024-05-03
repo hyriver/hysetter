@@ -92,62 +92,39 @@ def show_versions(file: TextIO = sys.stdout) -> None:
         print to the given file-like object. Defaults to sys.stdout.
     """
     deps = [
-        # HyRiver packages
-        "async-retriever",
-        "pygeoogc",
-        "pygeoutils",
-        "py3dep",
-        "pynhd",
-        "pygridmet",
-        "pydaymet",
-        "hydrosignatures",
-        "pynldas2",
-        "pygeohydro",
         "hysetter",
-        #  async-retriever deps
-        "aiohttp",
-        "aiohttp-client-cache",
-        "aiosqlite",
+        "httpx",
+        "hishel",
+        "brotli",
         "cytoolz",
+        "nest-asyncio",
         "ujson",
-        #  pygeoogc deps
-        "defusedxml",
         "joblib",
-        "multidict",
-        "owslib",
         "pyproj",
-        "requests",
-        "requests-cache",
         "shapely",
-        "url-normalize",
-        "urllib3",
         "yarl",
-        #  pygeoutils deps
         "geopandas",
         "netcdf4",
         "numpy",
         "rasterio",
         "rioxarray",
         "scipy",
-        "shapely",
-        "ujson",
         "xarray",
-        #  py3dep deps
-        "click",
-        "pyflwdir",
-        #  pynhd deps
+        "numpy",
+        "pandas",
+        "numba",
+        "numbagg",
+        "flox",
+        "rich-click",
         "networkx",
         "pyarrow",
-        #  pygeohydro deps
-        "folium",
-        "h5netcdf",
-        "matplotlib",
-        "pandas",
-        #  optional
-        "numba",
-        "bottleneck",
-        "py7zr",
         "pyogrio",
+        "py7zr",
+        "h5netcdf",
+        "planetary-computer",
+        "pystac-client",
+        "pyogrio",
+        "osmnx",
     ]
     pad = len(max(deps, key=len)) + 1
 
