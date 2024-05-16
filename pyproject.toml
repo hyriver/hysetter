@@ -10,7 +10,9 @@ name = "hysetter"
 description = "Subset hydroclimate data using HyRiver Over CONUS."
 readme = "README.rst"
 license = { text = "MIT" }
-authors = [{ name = "Taher Chegini", email = "cheginit@gmail.com" }]
+authors = [
+  { name = "Taher Chegini", email = "cheginit@gmail.com" },
+]
 requires-python = ">=3.10"
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -19,8 +21,6 @@ classifiers = [
   "Operating System :: OS Independent",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -33,41 +33,53 @@ dynamic = [
   "version",
 ]
 dependencies = [
-  "click>=0.7",
-  "pydantic>=2",
-  "async_retriever",
-  "pygeoogc",
-  "pygeoutils",
-  "pynhd",
-  "py3dep",
-  "hydrosignatures",
-  "pygeohydro",
-  "pydaymet",
-  "pygridmet",
-  "pynldas2",
+  # HyRiver packages
+  "async-retriever>=0.16",
+  "flox",
+  "hydrosignatures>=0.16",
+  "numba",
+  "numbagg",
+  "planetary-computer",
+  "py3dep>=0.16",
+  "py7zr",
+  "pydantic",
+  "pydaymet>=0.16",
+  "pygeohydro>=0.16",      # Other deps
+  "pygeoogc>=0.16",
+  "pygeoutils>=0.16",
+  "pygridmet>=0.16",
+  "pynhd>=0.16",
+  "pynldas2>=0.16",
+  "pyogrio",
+  "pystac-client",
+  "pyyaml",
+  "rich-click",
 ]
-[project.optional-dependencies]
-test = [
+optional-dependencies.test = [
   "pytest-cov",
   "pytest-sugar",
   "pytest-xdist[psutil]",
 ]
-[project.urls]
-CI = "https://github.com/hyriver/hysetter/actions"
-Changelog = "https://docs.hyriver.io/changelogs/hysetter.html"
-Homepage = "https://docs.hyriver.io/readme/hysetter.html"
-Issues = "https://github.com/hyriver/hysetter/issues"
-[project.scripts]
-hysetter = "hysetter.cli:cli"
+urls.Changelog = "https://docs.hyriver.io/changelogs/hysetter.html"
+urls.CI = "https://github.com/hyriver/hysetter/actions"
+urls.Homepage = "https://docs.hyriver.io/readme/hysetter.html"
+urls.Issues = "https://github.com/hyriver/hysetter/issues"
+scripts.hysetter = "hysetter.cli:cli"
 
 [tool.setuptools]
 include-package-data = true
-license-files = ["LICENSE"]
-platforms = ["any"]
+license-files = [
+  "LICENSE",
+]
+platforms = [
+  "any",
+]
 zip-safe = false
 
 [tool.setuptools.package-data]
-hysetter = ["py.typed"]
+hysetter = [
+  "py.typed",
+]
 
 [tool.setuptools.packages]
 find = { namespaces = false }
@@ -77,6 +89,14 @@ fallback_version = "999"
 
 [tool.ruff]
 target-version = "py310"
+line-length = 100
+
+exclude = [
+  ".nox",
+  "__pycache__",
+]
+
+format.docstring-code-format = true
 lint.select = [
   # flake8-bugbear
   "B",
@@ -90,24 +110,43 @@ lint.select = [
   "F",
   # isort
   "I",
+  # flake8-gettext
+  "INT",
   # flake8-implicit-str-concat
   "ISC",
   # pep8-naming
   "N",
   # pygrep-hooks
   "PGH",
+  # misc lints
+  "PIE",
+  # pylint
+  "PLC",
+  "PLE",
+  "PLR",
+  "PLW",
   # flake8-pytest-style
   "PT",
   # flake8-use-pathlib
   "PTH",
+  # flake8-pyi
+  "PYI",
   # flake8-quotes
   "Q",
+  # Ruff-specific rules
+  "RUF",
   # bandit
   "S",
   # flake8-simplify
   "SIM",
+  # flake8-debugger
+  "T10",
   # flake8-print
   "T20",
+  # type-checking imports
+  "TCH",
+  # tidy imports
+  "TID",
   # tryceratops
   "TRY",
   # pyupgrade
@@ -116,53 +155,9 @@ lint.select = [
   "W",
   # flake8-2020
   "YTT",
-  # flake8-debugger
-  "T10",
-  # flake8-gettext
-  "INT",
-  # pylint
-  "PLC",
-  "PLE",
-  "PLR",
-  "PLW",
-  # misc lints
-  "PIE",
-  # flake8-pyi
-  "PYI",
-  # tidy imports
-  "TID",
-  # type-checking imports
-  "TCH",
-  # Ruff-specific rules
-  "RUF",
 ]
 
-exclude = ["__pycache__", ".nox"]
-
-lint.ignore = [
-  # docstring in class __init__
-  "D107",
-  # long too long, let the formatter handle it
-  "E501",
-  # too many arguments
-  "PLR0913",
-  # conflict with ruff-formatter
-  "ISC001",
-]
-lint.extend-safe-fixes = [
-  # absolute imports
-  "TID252",
-]
-line-length = 100
-
-[tool.ruff.format]
-docstring-code-format = true
-
-[tool.ruff.lint.pydocstyle]
-convention = "numpy"
-
-[tool.ruff.lint.per-file-ignores]
-"tests/*.py" = [
+lint.per-file-ignores."tests/*.py" = [
   # Disable all docstring checks in tests
   "D100",
   "D101",
@@ -174,28 +169,33 @@ convention = "numpy"
   "D107",
   # magic values
   "PLR2004",
+  # Mutable class attributes
+  "RUF012",
   # use of "assert"
   "S101",
   # possible hardcoded password
   "S106",
-  # Mutable class attributes
-  "RUF012",
 ]
-
-[tool.ruff.lint.isort]
-required-imports = ["from __future__ import annotations"]
-known-first-party = [
+lint.extend-safe-fixes = [
+  # absolute imports
+  "TID252",
+]
+lint.isort.known-first-party = [
   "hysetter",
-  "async_retriver",
-  "pygeoogc",
-  "pygeoutils",
-  "pynhd",
-  "py3dep",
-  "hydrosignatures",
-  "pygeohydro",
-  "pydaymet",
-  "pygridmet",
-  "pynldas2",
+]
+lint.isort.required-imports = [
+  "from __future__ import annotations",
+]
+lint.pydocstyle.convention = "numpy"
+lint.ignore = [
+  # docstring in class __init__
+  "D107",
+  # long too long, let the formatter handle it
+  "E501",
+  # conflict with ruff-formatter
+  "ISC001",
+  # too many arguments
+  "PLR0913",
 ]
 
 [tool.codespell]
@@ -208,21 +208,38 @@ doctest_optionflags = 'NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL NUMBER'
 filterwarnings = [
   "ignore:.*numpy.ndarray size changed.*",
 ]
-testpaths = ["tests", "hysetter"]
+testpaths = [
+  "tests",
+  "hysetter",
+]
 
 [tool.coverage.report]
-exclude_lines = ["if TYPE_CHECKING:"]
+exclude_lines = [
+  "if TYPE_CHECKING:",
+]
 ignore_errors = true
 
 [tool.coverage.run]
 branch = true
-omit = ["**/__init__.py", "**/print_versions.py"]
+omit = [
+  "**/__init__.py",
+  "**/print_versions.py",
+]
 parallel = true
-source = ["hysetter"]
+source = [
+  "hysetter",
+]
 
 [tool.pyright]
-exclude = [".nox/", "**/__pycache__", "**/__init__.py", "tests/"]
-include = ["hysetter"]
+exclude = [
+  ".nox/",
+  "**/__pycache__",
+  "**/__init__.py",
+  "tests/",
+]
+include = [
+  "hysetter",
+]
 reportMissingTypeStubs = false
 reportUnknownArgumentType = false
 reportUnknownLambdaType = false
