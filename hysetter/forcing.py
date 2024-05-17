@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
-import warnings
 from pathlib import Path
-from typing import cast
+from typing import TYPE_CHECKING
 
 import geopandas as gpd
-import pandas as pd
 import pydaymet as daymet
 
-from .hysetter import Config
+from .utils import get_logger
+
+if TYPE_CHECKING:
+    from .hysetter import Config
 
 __all__ = ["get_forcing"]
 
@@ -23,6 +24,7 @@ def get_forcing(config: Config) -> None:
     config : Config
         A Config object.
     """
+    logger = get_logger()
     if config.forcing is None:
         return
 
@@ -30,8 +32,16 @@ def get_forcing(config: Config) -> None:
         gdf = gpd.read_parquet(config.file_paths.aoi_parquet)
         for i, geom in enumerate(gdf.geometry):
             try:
-                clm = daymet.get_bygeom(geom, (config.forcing.start_date, config.forcing.end_date), gdf.crs, config.forcing.variables)
-                clm.to_netcdf(Path(config.file_paths.forcing_dir, f"forcing_{i}.nc"))
-            except Exception:
-                warnings.warn(f"Failed to get forcing for AOI index {i}.", UserWarning, stacklevel=2)
+                logger.info(f"forcing for AOI index {i}.")
+                clm = daymet.get_bygeom(
+                    geom,
+                    (config.forcing.start_date, config.forcing.end_date),  # pyright: ignore[reportArgumentType]
+                    gdf.crs,
+                    config.forcing.variables,  # pyright: ignore[reportArgumentType]
+                )
+                clm.to_netcdf(Path(config.file_paths.forcing_dir, f"daymet_geom_{i}.nc"))
+            except Exception as e:
+                logger.warning(
+                    f"Failed to get forcing for AOI index {i}:\n{e!s}", UserWarning, stacklevel=2
+                )
                 continue

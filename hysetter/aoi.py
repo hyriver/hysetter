@@ -4,15 +4,19 @@ from __future__ import annotations
 
 import warnings
 from pathlib import Path
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import geopandas as gpd
 import pandas as pd
 from pynhd import WaterData
 
-from .hysetter import Config
+from .utils import get_logger
+
+if TYPE_CHECKING:
+    from .hysetter import Config
 
 __all__ = ["get_aoi"]
+
 
 def _get_hucs(huc_ids: list[str]) -> gpd.GeoDataFrame:
     """Get HUCs."""
@@ -45,8 +49,10 @@ def _read_geometry_file(geometry_file: str) -> gpd.GeoDataFrame:
 
 def _get_flowlines(gdf: gpd.GeoDataFrame, flowlines_dir: Path) -> None:
     """Get flowlines."""
+    logger = get_logger()
     wd = WaterData("nhdflowline_network")
     for i, geom in enumerate(gdf.geometry):
+        logger.info(f"NHDPlus V2 flowlines for AOI index {i}.")
         try:
             flw = wd.bygeom(geom, gdf.crs)
         except Exception:
@@ -63,18 +69,25 @@ def get_aoi(config: Config) -> None:
     config : Config
         A Config object.
     """
+    logger = get_logger()
     aoi = config.aoi
-    gdf = None
+
     if aoi.huc_ids:
+        logger.info("HUCs.")
         gdf = _get_hucs(aoi.huc_ids)
     elif aoi.nhdv2_ids:
+        logger.info("NHDPlus V2 catchments.")
         gdf = WaterData("catchmentsp").byid("featureid", aoi.nhdv2_ids)
     elif aoi.gagesii_basins:
+        logger.info("GAGES-II basins.")
         gdf = WaterData("gagesii_basins").byid("gage_id", aoi.gagesii_basins)
     elif aoi.geometry_file:
+        logger.info(f"Reading from {aoi.geometry_file}")
         gdf = _read_geometry_file(aoi.geometry_file)
-    if gdf is None:
-        raise ValueError("Area of interest not found.")
+    else:
+        raise ValueError(
+            "Only one of `huc_ids`, `nhdv2_ids`, `gagesii_basins`, or `geometry_file` must be provided."
+        )
     gdf.to_parquet(config.file_paths.aoi_parquet)
     if aoi.nhdv2_flowlines:
         _get_flowlines(gdf, config.file_paths.flowlines_dir)
