@@ -1,4 +1,4 @@
-hysetter: Hyroclimate Data Subsetter based on HyRiver
+HySetter: Hyroclimate Data Subsetter based on HyRiver
 =====================================================
 
 .. image:: https://img.shields.io/pypi/v/hysetter.svg
@@ -27,13 +27,13 @@ hysetter: Hyroclimate Data Subsetter based on HyRiver
     :target: https://github.com/PyCQA/bandit
     :alt: Security Status
 
-.. image:: https://www.codefactor.io/repository/github/hyriver/hysetterr/badge
+.. image:: https://www.codefactor.io/repository/github/hyriver/hysetter/badge
    :target: https://www.codefactor.io/repository/github/hyriver/hysetter
    :alt: CodeFactor
 
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-    :target: https://github.com/psf/black
-    :alt: black
+.. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
+    :target: https://github.com/astral-sh/ruff
+    :alt: Ruff
 
 .. image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white
     :target: https://github.com/pre-commit/pre-commit
