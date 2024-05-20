@@ -48,20 +48,20 @@ HySetter is an open-source Python package, built on HyRiver software stack, that
 command-line interface (CLI) for subsetting hydroclimate data from the following data sources
 over conterminous United States (CONUS):
 
-- AOI: From any `HUC <https://www.usgs.gov/national-hydrography/watershed-boundary-dataset>`__
+- **Area Of Interest**: From any `HUC <https://www.usgs.gov/national-hydrography/watershed-boundary-dataset>`__
   level, `GAGES-II basins <https://pubs.usgs.gov/publication/70046617>`__,
-  `NHDPlusV2 catchments <https://www.nhdplus.com/NHDPlus/NHDPlusV2_home.php>`__,
+  `NHDPlusV2 <https://www.nhdplus.com/NHDPlus/NHDPlusV2_home.php>`__ catchments,
   or a user-defined GeoDataFrame
-- Drainage Network: From NHDPlusV2
-- Forcing: From `Daymet <https://daymet.ornl.gov/>`__,
+- **Drainage Network**: From NHDPlusV2
+- **Forcing**: From `Daymet <https://daymet.ornl.gov/>`__,
   `GridMET <https://www.climatologylab.org/gridmet.html>`__,
   or `NLDAS2 <https://ldas.gsfc.nasa.gov/nldas/v2/forcing>`__
-- Streamflow: From `NWIS <https://nwis.waterdata.usgs.gov/nwis>`__
-- Soil: From `gNATSGO <https://planetarycomputer.microsoft.com/dataset/gnatsgo-rasters>`__,
+- **Streamflow**: From `NWIS <https://nwis.waterdata.usgs.gov/nwis>`__
+- **Soil**: From `gNATSGO <https://planetarycomputer.microsoft.com/dataset/gnatsgo-rasters>`__,
   or `SoilGrids <https://www.isric.org/explore/soilgrids>`__
-- Topography: From `3DEP <https://www.usgs.gov/3d-elevation-program>`__
-- Dam: From `NID <https://nid.sec.usace.army.mil>`__
-- Land Use/Land Cover, Canopy, Imperviousness, and Urban Descriptor:
+- **Topography**: From `3DEP <https://www.usgs.gov/3d-elevation-program>`__
+- **Dam**: From `NID <https://nid.sec.usace.army.mil>`__
+- **Land Use/Land Cover, Canopy, Imperviousness, and Urban Descriptor**:
   From `MRLC <https://www.mrlc.gov/>`__
 
 Citation
@@ -107,7 +107,7 @@ source, the area of interest (AOI), and the output directory. You can find an ex
 configuration file in the
 `config_demo.yml <https://github.com/hyriver/hysetter/blob/main/config_demo.yml>`__.
 
-.. image:: https://raw.githubusercontent.com/hyriver/hysetter/blob/main/hs_help.svg
+.. image:: https://raw.githubusercontent.com/hyriver/hysetter/main/hs_help.svg
     :align: center
 
 Contributing
