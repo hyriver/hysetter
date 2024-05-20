@@ -1,5 +1,5 @@
-hysetter: Hyroclimate Data Subsetter
-=============================================================
+hysetter: Hyroclimate Data Subsetter based on HyRiver
+=====================================================
 
 .. image:: https://img.shields.io/pypi/v/hysetter.svg
     :target: https://pypi.python.org/pypi/hysetter
@@ -44,6 +44,26 @@ hysetter: Hyroclimate Data Subsetter
 Features
 --------
 
+HySetter is an open-source Python package, built on HyRiver software stack, that provides a
+command-line interface (CLI) for subsetting hydroclimate data from the following data sources
+over conterminous United States (CONUS):
+
+- AOI: From any `HUC <https://www.usgs.gov/national-hydrography/watershed-boundary-dataset>`__
+  level, `GAGES-II basins <https://pubs.usgs.gov/publication/70046617>`__,
+  `NHDPlusV2 catchments <https://www.nhdplus.com/NHDPlus/NHDPlusV2_home.php>`__,
+  or a user-defined GeoDataFrame
+- Drainage Network: From NHDPlusV2
+- Forcing: From `Daymet <https://daymet.ornl.gov/>`__,
+  `GridMET <https://www.climatologylab.org/gridmet.html>`__,
+  or `NLDAS2 <https://ldas.gsfc.nasa.gov/nldas/v2/forcing>`__
+- Streamflow: From `NWIS <https://nwis.waterdata.usgs.gov/nwis>`__
+- Soil: From `gNATSGO <https://planetarycomputer.microsoft.com/dataset/gnatsgo-rasters>`__,
+  or `SoilGrids <https://www.isric.org/explore/soilgrids>`__
+- Topography: From `3DEP <https://www.usgs.gov/3d-elevation-program>`__
+- Dam: From `NID <https://nid.sec.usace.army.mil>`__
+- Land Use/Land Cover, Canopy, Imperviousness, and Urban Descriptor:
+  From `MRLC <https://www.mrlc.gov/>`__
+
 Citation
 --------
 If you use any of HyRiver packages in your research, we appreciate citations:
@@ -81,8 +101,24 @@ using `micromamba <https://mamba.readthedocs.io/en/latest/installation/micromamb
 Quick start
 -----------
 
+Once HySetter is installed, you can use the CLI to subset hydroclimate data via a
+configuration file. The configuration file is a YAML file that specifies the data
+source, the area of interest (AOI), and the output directory. You can find an example
+configuration file in the
+`config_demo.yml <https://github.com/hyriver/hysetter/blob/main/config_demo.yml>`__.
+
+.. image:: https://raw.githubusercontent.com/hyriver/hysetter/blob/main/hs_help.svg
+    :align: center
+
 Contributing
 ------------
 Contributions are appreciated and very welcomed. Please read
 `CONTRIBUTING.rst <https://github.com/hyriver/hysetter/blob/main/CONTRIBUTING.rst>`__
 for instructions.
+
+
+Acknowledgements
+----------------
+This work is supported by Consortium of Universities for the Advancement of Hydrologic
+Science, Inc. (`CUAHSI <https://www.cuahsi.org/>`__) through the Hydroinformatics Innovation
+Fellowship program.
