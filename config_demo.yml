@@ -1,34 +1,58 @@
+# Only `project` and `aoi` are required, the rest are optional
 project:
+  # Data will be stored in `data_dir/name`
   name: example_1
-  data_dir: path/to/root/dir
+  data_dir: data
 aoi:
-  huc_ids: ["01020004"]
-  nhd_featureids: []
-  geometry_file: ""
-  drainage_network: true
+  # Could be a mix of different HUC levels
+  huc_ids: []
+  # NHDPlusV2 catchment IDs (featureid)
+  nhdv2_ids: []
+  # GAGES-II basin ID
+  gagesii_basins: ['01031500', '01031450']
+  # Could be paruqet, feather or anything that geopandas.read_file acceps
+  geometry_file: ''
+  # Whether to get NHDPlusV2 flowlines within AOI.
+  # Flowlines for each geometry (row) in the AOI will be saved to a
+  # subdirectory called data_dir/nhdv2_flowlines. The files are named
+  # with this pattern `aio_geom_X.parquet` where `X` is the row number
+  # in the AOI GeoDataFrame.
+  nhdv2_flowlines: true
 forcing:
+  # Could be `daymet`, `gridmet`, or `nldas2`
   source: daymet
   start_date: 2000-01-01
-  end_date: 2019-12-30
-  resolution_km: 4
-  variables: [prcp, tmin, pet, snow]
+  end_date: 2000-01-02
+  # Valid variable names depend on the source
+  variables: [prcp, tmin]
 topo:
+  # Could be any positive integer. When using 10, 30, and 60
+  # DEM data will be retrieved from 3DEP's static files, otherwise
+  # data will be queried from 3DEP's WMS web service which takes more time.
   resolution_m: 10
-  derived_variables: [slope, aspect]
-gnatsgo:
-  variables: [por, tk0_999a]
+  # Could be `slope`, `aspect`, and `curvature` which will be computed
+  # using `xarray-spatial`
+  derived_variables: [slope, aspect, curvature]
+soil:
+  # Could be `soilgrids` or `gnatsgo` and variables depend on the service
+  source: soilgrids
+  variables: [bdod_5, cec_5]
+  # source: gnatsgo
+  # variables: [tk0_999a, aws0_999]
 nlcd:
-  variables: [cover]
-  years: [2016]
+  # Options are 2021, 2019, 2016, 2013, 2011, 2008, 2006, 2004, 2001
+  # But for canopy it's any year between 2011-2022 (inclusive)
+  cover: [2016]
+  impervious: [2016]
+  canopy: [2016]
+  descriptor: [2016]
 nid:
-  federal_ids: []
-  within_aio: true
-remote_datasets:
-  service_names: [ndvi]
-  service_types: [netcdfsubset]
-  urls: [https://thredds.daac.ornl.gov/thredds/ncss/ornldaac/1299]
+  # If True only returns dams within AOIs, otherwise
+  # will store the full NID database
+  within_aoi: true
 streamflow:
-  gage_ids: ["01031500", "01031450"]
+  # Get streamflows for all stations within AOIs
   start_date: 2000-01-01
-  end_date: 2019-12-30
+  end_date: 2000-01-02
+  # Options are `daily` or `instantaneous`
   frequency: daily
