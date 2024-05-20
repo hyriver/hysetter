@@ -34,16 +34,18 @@ dynamic = [
 ]
 dependencies = [
   "async-retriever>=0.16.1",
+  "dask[dataframe]",
   "flox",
+  "geopandas",
   "hydrosignatures>=0.16",
   "numba",
   "numbagg",
+  "pandas",
   "planetary-computer",
   "py3dep>=0.16.3",
-  "py7zr",
-  "pydantic",
+  "pydantic>=2.7.1",
   "pydaymet>=0.16.3",
-  "pygeohydro>=0.16.3",
+  "pygeohydro>=0.16.4",
   "pygeoogc>=0.16.3",
   "pygeoutils>=0.16.3",
   "pygridmet>=0.16",
@@ -52,8 +54,10 @@ dependencies = [
   "pyogrio",
   "pystac-client",
   "pyyaml",
-  "rich-click",
+  "rich",
+  "rich-click>=1.8.2",
   "typing-extensions",
+  "xarray>=2024.5",
   "xarray-spatial",
 ]
 optional-dependencies.test = [
