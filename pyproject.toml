@@ -33,27 +33,28 @@ dynamic = [
   "version",
 ]
 dependencies = [
-  # HyRiver packages
-  "async-retriever>=0.16",
+  "async-retriever>=0.16.1",
   "flox",
   "hydrosignatures>=0.16",
   "numba",
   "numbagg",
   "planetary-computer",
-  "py3dep>=0.16",
+  "py3dep>=0.16.3",
   "py7zr",
   "pydantic",
-  "pydaymet>=0.16",
-  "pygeohydro>=0.16",      # Other deps
-  "pygeoogc>=0.16",
-  "pygeoutils>=0.16",
+  "pydaymet>=0.16.3",
+  "pygeohydro>=0.16.3",
+  "pygeoogc>=0.16.3",
+  "pygeoutils>=0.16.3",
   "pygridmet>=0.16",
-  "pynhd>=0.16",
+  "pynhd>=0.16.3",
   "pynldas2>=0.16",
   "pyogrio",
   "pystac-client",
   "pyyaml",
   "rich-click",
+  "typing-extensions",
+  "xarray-spatial",
 ]
 optional-dependencies.test = [
   "pytest-cov",
@@ -196,6 +197,8 @@ lint.ignore = [
   "ISC001",
   # too many arguments
   "PLR0913",
+  # custom exceptions
+  "TRY003",
 ]
 
 [tool.codespell]
