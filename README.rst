@@ -110,6 +110,9 @@ configuration file in the
 .. image:: https://raw.githubusercontent.com/hyriver/hysetter/main/hs_help.svg
     :align: center
 
+.. image:: https://raw.githubusercontent.com/hyriver/hysetter/main/hs_demo.gif
+    :align: center
+
 Contributing
 ------------
 Contributions are appreciated and very welcomed. Please read
