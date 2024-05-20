@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.metadata
+import shutil
 import sys
 from pathlib import Path
 
@@ -11,7 +12,7 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
-from . import aoi, forcing
+from . import aoi, forcing, nid, nlcd, nwis, soil, topo
 from . import hysetter as hs
 
 console = Console()
@@ -35,10 +36,23 @@ def get_versions() -> dict[str, str]:
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)
-@click.argument("config", type=click.Path(exists=True))
+@click.argument("config_yml", type=click.Path(exists=True))
+@click.option(
+    "--overwrite",
+    is_flag=True,
+    default=False,
+    help="Overwrite the existing data, defaults to ``False``.",
+)
 @click.version_option(importlib.metadata.version("hysetter"), prog_name="HySetter")
-def cli(config: str) -> None:
-    """Get the requested data for the area of interest."""
+def cli(config_yml: str, overwrite: bool = False) -> None:
+    r"""Get hydroclimate data for areas of interest.
+
+    \b
+    CONFIG_YML: Path to the configuration file in YAML format.
+
+    \b
+    $ hysetter config.yml --overwrite
+    """
     table = Table(box=box.ROUNDED)
     table.add_column("Package", style="bold")
     table.add_column("Version", style="magenta", justify="center")
@@ -46,14 +60,20 @@ def cli(config: str) -> None:
         table.add_row(p, v)
     console.print(table)
 
-    console.print(f"Reading configuration file: [bold green]{Path(config).resolve()}")
-    cfg = hs.read_config(config)
+    console.print(f"Reading configuration file: [bold green]{Path(config_yml).resolve()}")
+    cfg = hs.read_config(config_yml)
 
+    if overwrite:
+        console.print("Removing existing data")
+        shutil.rmtree(cfg.project.data_dir, ignore_errors=True)
     try:
-        console.print("Getting AOI geometries.")
         aoi.get_aoi(cfg)
-        console.print("Getting forcing data.")
         forcing.get_forcing(cfg)
+        topo.get_topo(cfg)
+        soil.get_soil(cfg)
+        nlcd.get_nlcd(cfg)
+        nid.get_nid(cfg)
+        nwis.get_streamflow(cfg)
     except Exception:
         console.print_exception(extra_lines=8, show_locals=True)
         sys.exit(1)

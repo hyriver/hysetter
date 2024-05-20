@@ -37,7 +37,9 @@ def get_streamflow(config: Config) -> None:
     freq = "dv" if config.streamflow.frequency == "daily" else "iv"
     nwis = NWIS()
     for i, geom in track(
-        enumerate(gdf.geometry.to_crs(4326)), description="Getting streamflow from NWIS", total=len(gdf)
+        enumerate(gdf.geometry.to_crs(4326)),
+        description="Getting streamflow from NWIS",
+        total=len(gdf),
     ):
         fpath = Path(config.file_paths.streamflow_dir, f"streamflow_geom_{i}.nc")
         if fpath.exists():
@@ -46,8 +48,11 @@ def get_streamflow(config: Config) -> None:
             query = {"bBox": ",".join(f"{b:.06f}" for b in geom.bounds), "outputDataTypeCd": freq}
             siteinfo = nwis.get_info(query)
             sids = siteinfo.loc[siteinfo.within(geom), "site_no"].unique().tolist()
-            nwis.get_streamflow(sids, (start, end), freq=freq, to_xarray=True).to_netcdf(fpath)
-            
+            qobs = nwis.get_streamflow(sids, (start, end), freq=freq, to_xarray=True)
+            if len(qobs) == 0:
+                console.print(f"No streamflow data found for AOI index {i}")
+                continue
+            qobs.to_netcdf(fpath)
         except Exception:
             console.print_exception(show_locals=True, max_frames=4)
             console.print(f"Failed to get streamflow data for AOI index {i}")

@@ -6,9 +6,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import geopandas as gpd
-import pydaymet as daymet
-
-from .utils import get_logger
+from rich.console import Console
+from rich.progress import track
 
 if TYPE_CHECKING:
     from .hysetter import Config
@@ -24,24 +23,49 @@ def get_forcing(config: Config) -> None:
     config : Config
         A Config object.
     """
-    logger = get_logger()
+    console = Console()
     if config.forcing is None:
         return
 
     if config.forcing.source == "daymet":
-        gdf = gpd.read_parquet(config.file_paths.aoi_parquet)
-        for i, geom in enumerate(gdf.geometry):
-            try:
-                logger.info(f"forcing for AOI index {i}.")
-                clm = daymet.get_bygeom(
-                    geom,
-                    (config.forcing.start_date, config.forcing.end_date),  # pyright: ignore[reportArgumentType]
-                    gdf.crs,
-                    config.forcing.variables,  # pyright: ignore[reportArgumentType]
-                )
-                clm.to_netcdf(Path(config.file_paths.forcing_dir, f"daymet_geom_{i}.nc"))
-            except Exception as e:
-                logger.warning(
-                    f"Failed to get forcing for AOI index {i}:\n{e!s}", UserWarning, stacklevel=2
-                )
-                continue
+        import pydaymet as daymet
+
+        get_clm = daymet.get_bygeom
+    elif config.forcing.source == "gridmet":
+        import pygridmet as gridmet
+
+        get_clm = gridmet.get_bygeom
+    elif config.forcing.source == "nldas2":
+        import pynldas2 as nldas2
+
+        get_clm = nldas2.get_bygeom
+    else:
+        raise ValueError("Unknown forcing source.")
+
+    gdf = gpd.read_parquet(config.file_paths.aoi_parquet)
+    config.file_paths.forcing_dir.mkdir(exist_ok=True, parents=True)
+    forcing_name = {
+        "daymet": "Daymet",
+        "gridmet": "GridMet",
+        "nldas2": "NLDAS2",
+    }[config.forcing.source]
+    for i, geom in track(
+        enumerate(gdf.geometry), description=f"Getting forcing from {forcing_name}", total=len(gdf)
+    ):
+        fpath = Path(config.file_paths.forcing_dir, f"{config.forcing.source}_geom_{i}.nc")
+        if fpath.exists():
+            continue
+        try:
+            clm = get_clm(
+                geom,
+                (config.forcing.start_date, config.forcing.end_date),  # pyright: ignore[reportArgumentType]
+                gdf.crs,
+                config.forcing.variables,  # pyright: ignore[reportArgumentType]
+            )
+            clm.to_netcdf(
+                Path(config.file_paths.forcing_dir, f"{config.forcing.source}_geom_{i}.nc")
+            )
+        except Exception:
+            console.print_exception(show_locals=True, max_frames=4)
+            console.print(f"Failed to get forcing for AOI index {i}.")
+            continue

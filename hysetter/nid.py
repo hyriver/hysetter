@@ -12,10 +12,10 @@ from rich.progress import track
 if TYPE_CHECKING:
     from .hysetter import Config
 
-__all__ = ["get_nlcd"]
+__all__ = ["get_nid"]
 
 
-def get_nlcd(config: Config) -> None:
+def get_nid(config: Config) -> None:
     """Get NID data for the area of interest.
 
     Parameters
@@ -26,16 +26,18 @@ def get_nlcd(config: Config) -> None:
     from pygeohydro import NID
 
     console = Console()
-    if config.nlcd is None:
+    if config.nid is None:
         return
 
     gdf = gpd.read_parquet(config.file_paths.aoi_parquet)
     config.file_paths.nid_dir.mkdir(exist_ok=True, parents=True)
     nid = NID()
-    nid.stage_nid_inventory(Path(config.file_paths.project_dir, "full_nid_inventory.feather"))
+    nid.stage_nid_inventory(Path(config.file_paths.project_dir, "full_nid_inventory.parquet"))
+    if not config.nid.within_aoi:
+        return
 
     for i, geom in track(
-        enumerate(gdf.geometry), description="Getting NID from MRLC", total=len(gdf)
+        enumerate(gdf.geometry), description="Getting dams from NID", total=len(gdf)
     ):
         fpath = Path(config.file_paths.nid_dir, f"nid_geom_{i}.parquet")
         if fpath.exists():

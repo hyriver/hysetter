@@ -6,9 +6,8 @@ import functools
 from dataclasses import dataclass
 from datetime import datetime  # noqa: TCH003
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
-import rich.repr
 import yaml
 from pydantic import BaseModel, Field, ValidationError, model_validator
 from typing_extensions import Self
@@ -42,7 +41,6 @@ class Project(BaseModel):
     data_dir: str
 
 
-@rich.repr.auto
 class AOI(BaseModel):
     """Area of interest.
 
@@ -90,49 +88,44 @@ class AOI(BaseModel):
         return self
 
 
-@rich.repr.auto
 class Forcing(BaseModel):
-    source: str
+    source: Literal["daymet", "gridmet", "nldas2"]
     start_date: datetime
     end_date: datetime
-    variables: list[str]
+    variables: list[str] | None = None
 
 
-@rich.repr.auto
 class Topo(BaseModel):
     resolution_m: int
-    derived_variables: list[str]
+    derived_variables: list[Literal["slope", "aspect", "curvature"]] | None = None
 
 
-@rich.repr.auto
-class GNATSGO(BaseModel):
+class Soil(BaseModel):
+    source: Literal["soilgrids", "gnatsgo"]
     variables: list[str]
 
 
-@rich.repr.auto
 class NLCD(BaseModel):
-    variables: list[str] | None = None
-    years: list[int] | None = None
+    cover: list[int] | None = None
+    impervious: list[int] | None = None
+    canopy: list[int] | None = None
+    descriptor: list[int] | None = None
 
 
-@rich.repr.auto
 class NID(BaseModel):
-    federal_ids: list[str] | None = None
-    within_aoi: bool = False
-
-    @model_validator(mode="after")
-    def check_exclusive_options(self) -> Self:
-        if self.federal_ids is None and not self.within_aoi:
-            raise ValueError("One of `federal_ids` or `within_aoi` must be provided.")
-        return self
+    within_aoi: bool
 
 
-@rich.repr.auto
 class Streamflow(BaseModel):
-    gage_ids: list[str]
     start_date: datetime
     end_date: datetime
     frequency: str
+
+    @model_validator(mode="after")
+    def check_exclusive_options(self) -> Self:
+        if self.frequency not in ("daily", "instantaneous"):
+            raise ValueError("Frequency must be either 'daily' or 'instantaneous'.")
+        return self
 
 
 @dataclass
@@ -141,15 +134,19 @@ class FilePaths:
     aoi_parquet: Path
     flowlines_dir: Path
     forcing_dir: Path
+    topo_dir: Path
+    soil_dir: Path
+    nlcd_dir: Path
+    nid_dir: Path
+    streamflow_dir: Path
 
 
-@rich.repr.auto
 class Config(BaseModel):
     project: Project
     aoi: AOI
     forcing: Forcing | None = None
     topo: Topo | None = None
-    gnatsgo: GNATSGO | None = None
+    soil: Soil | None = None
     nlcd: NLCD | None = None
     nid: NID | None = None
     streamflow: Streamflow | None = None
@@ -163,9 +160,12 @@ class Config(BaseModel):
             aoi_parquet=Path(project_dir, "aoi.parquet"),
             flowlines_dir=Path(project_dir, "nhdv2_flowlines"),
             forcing_dir=Path(project_dir, "forcing"),
+            topo_dir=Path(project_dir, "topo"),
+            soil_dir=Path(project_dir, "soil"),
+            nlcd_dir=Path(project_dir, "nlcd"),
+            nid_dir=Path(project_dir, "nid"),
+            streamflow_dir=Path(project_dir, "streamflow"),
         )
-        self.file_paths.flowlines_dir.mkdir(exist_ok=True, parents=True)
-        self.file_paths.forcing_dir.mkdir(exist_ok=True, parents=True)
 
 
 def read_config(file_path: str | Path) -> Config:

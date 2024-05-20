@@ -2,8 +2,28 @@
 
 from __future__ import annotations
 
-from typing import Generator, Sequence
-from typing import Generator
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Generator, Sequence
+
+
+class DataNotAvailableError(Exception):
+    """Exception raised for requested data is not available.
+
+    Parameters
+    ----------
+    data_name : str
+        Data name requested.
+    """
+
+    def __init__(self, data_name: str) -> None:
+        self.message = f"{data_name.capitalize()} is not available for the requested query."
+        super().__init__(self.message)
+
+    def __str__(self) -> str:
+        """Return the error message."""
+        return self.message
 
 
 class EmptyResponseError(Exception):
@@ -11,6 +31,24 @@ class EmptyResponseError(Exception):
 
     def __init__(self) -> None:
         self.message = "The input response is empty."
+        super().__init__(self.message)
+
+    def __str__(self) -> str:
+        """Return the error message."""
+        return self.message
+
+
+class ServiceUnavailableError(Exception):
+    """Exception raised when the service is not available.
+
+    Parameters
+    ----------
+    url : str
+        The server url
+    """
+
+    def __init__(self, url: str) -> None:
+        self.message = f"Service is currently not available, try again later:\n{url}"
         super().__init__(self.message)
 
     def __str__(self) -> str:
