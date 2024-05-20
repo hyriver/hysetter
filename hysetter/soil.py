@@ -151,6 +151,7 @@ def soilgrids(
     lyr_names, lyr_depths = zip(*[layer.split("_") for layer in layers], strict=False)
 
     def _read_layer(lyr: str, depth: str) -> DataArray:
+        """Read a SoilGrids layer."""
         base_url = "https://files.isric.org/soilgrids/latest/data"
         ds = rxr.open_rasterio(f"{base_url}/{lyr}/{lyr}_{depth}_mean.vrt")
         ds = cast("DataArray", ds)
