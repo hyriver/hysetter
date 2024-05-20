@@ -46,6 +46,7 @@ class Project(BaseModel):
     data_dir : str
         Path to the directory where the data will be stored.
     """
+
     name: str
     data_dir: str
 
@@ -100,7 +101,7 @@ class AOI(BaseModel):
 
 class Forcing(BaseModel):
     """Forcing data.
-    
+
     Parameters
     ----------
     source : str
@@ -113,6 +114,7 @@ class Forcing(BaseModel):
         List of variables to retrieve, by default None. If not provided, all available
         variables will be retrieved.
     """
+
     source: Literal["daymet", "gridmet", "nldas2"]
     start_date: datetime
     end_date: datetime
@@ -121,7 +123,7 @@ class Forcing(BaseModel):
 
 class Topo(BaseModel):
     """Topographic data.
-    
+
     Parameters
     ----------
     resolution_m : int
@@ -130,13 +132,14 @@ class Topo(BaseModel):
         List of derived variables to calculate, by default None. Supported derived
         variables are "slope", "aspect", and "curvature".
     """
+
     resolution_m: int
     derived_variables: list[Literal["slope", "aspect", "curvature"]] | None = None
 
 
 class Soil(BaseModel):
     """Soil data.
-    
+
     Parameters
     ----------
     source : str
@@ -144,31 +147,33 @@ class Soil(BaseModel):
     variables : list of str
         List of variables to retrieve. Each source has its own set of variables.
     """
+
     source: Literal["soilgrids", "gnatsgo"]
     variables: list[str]
 
 
 class NLCD(BaseModel):
     """National Land Cover Database (NLCD) data.
-    
+
     Parameters
     ----------
     cover : list of int, optional
-        List of years for land cover data, by default None, which defauls to
+        List of years for land cover data, by default None, which defaults to
         the most recent data. Available years are 2021, 2019, 2016, 2013, 2011,
         2008, 2006, 2004, and 2001.
     impervious : list of int, optional
-        List of years for impervious data, by default None, which defauls to
+        List of years for impervious data, by default None, which defaults to
         the most recent data. Available years are 2021, 2019, 2016, 2013, 2011,
         2008, 2006, 2004, and 2001.
     canopy : list of int, optional
-        List of years for canopy data, by default None, which defauls to
+        List of years for canopy data, by default None, which defaults to
         the most recent data. Available years are between 2011 and 2022.
     descriptor : list of int, optional
-        List of years for descriptor data, by default None, which defauls to
+        List of years for descriptor data, by default None, which defaults to
         the most recent data. Available years are 2021, 2019, 2016, 2013, 2011,
         2008, 2006, 2004, and 2001.
     """
+
     cover: list[int] | None = None
     impervious: list[int] | None = None
     canopy: list[int] | None = None
@@ -177,12 +182,13 @@ class NLCD(BaseModel):
 
 class NID(BaseModel):
     """National Inventory of Dams (NID) data.
-    
+
     Parameters
     ----------
     within_aoi : bool
         Whether to retrieve the NID data within the AOI.
     """
+
     within_aoi: bool
 
 
@@ -199,6 +205,7 @@ class Streamflow(BaseModel):
         Frequency of the streamflow data. Supported frequencies are
         "daily" and "instantaneous".
     """
+
     start_date: datetime
     end_date: datetime
     frequency: str
@@ -214,6 +221,7 @@ class Streamflow(BaseModel):
 @dataclass
 class FilePaths:
     """File paths to store the data."""
+
     project_dir: Path
     aoi_parquet: Path
     flowlines_dir: Path
@@ -227,7 +235,7 @@ class FilePaths:
 
 class Config(BaseModel):
     """Configuration for HySetter.
-    
+
     Notes
     -----
     Only ``project`` and ``aoi`` are required. The rest are optional.
@@ -253,6 +261,7 @@ class Config(BaseModel):
     file_paths : FilePaths
         File paths to store the data.
     """
+
     project: Project
     aoi: AOI
     forcing: Forcing | None = None
