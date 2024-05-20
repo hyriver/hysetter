@@ -1,8 +1,13 @@
+from __future__ import annotations
+
 import io
+
+import pytest
+from click.testing import CliRunner
+
 import hysetter as hs
 from hysetter.cli import cli
-from click.testing import CliRunner
-import pytest
+
 
 @pytest.fixture()
 def runner():
@@ -10,12 +15,12 @@ def runner():
     return CliRunner()
 
 
-def test_config(runner: CliRunner)-> None:
+def test_config(runner: CliRunner) -> None:
     ret = runner.invoke(cli, ["config_demo.yml"])
     assert ret.exit_code == 0
 
 
-def test_show_versions()-> None:
+def test_show_versions() -> None:
     f = io.StringIO()
     hs.show_versions(file=f)
     assert "SYS INFO" in f.getvalue()
