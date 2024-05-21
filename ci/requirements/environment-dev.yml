@@ -14,7 +14,7 @@ dependencies:
 - pydaymet >=0.16.3
 - hydrosignatures >=0.16
 - pynldas2 >=0.16
-- pygeohydro >=0.16.3
+- pygeohydro >=0.16.4
 # performance
 - flox
 - numba
@@ -36,7 +36,7 @@ dependencies:
 - dask-expr
 - boto3
 # nhdplus
-# - py7zr
+- py7zr
 
 # dev deps
 - ipywidgets
