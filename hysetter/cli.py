@@ -12,7 +12,6 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
-from . import aoi, forcing, nid, nlcd, nwis, soil, topo
 from . import hysetter as hs
 
 console = Console()
@@ -28,8 +27,11 @@ def get_versions() -> dict[str, str]:
         except importlib.metadata.PackageNotFoundError:
             return "not installed"
 
+    hs_ver = _get_version("hysetter")
+    if "dev" in hs_ver:
+        hs_ver = ".".join(hs_ver.split(".")[:3]) + "-dev"
     return {
-        "HySetter": _get_version("hysetter"),
+        "HySetter": hs_ver,
         "HyRiver Stack": ".".join(_get_version("pygeohydro").split(".")[:2]),
         "Python": ".".join(map(str, sys.version_info[:3])),
     }
@@ -67,13 +69,7 @@ def cli(config_yml: str, overwrite: bool = False) -> None:
         console.print("Removing existing data")
         shutil.rmtree(cfg.project.data_dir, ignore_errors=True)
     try:
-        aoi.get_aoi(cfg)
-        forcing.get_forcing(cfg)
-        topo.get_topo(cfg)
-        soil.get_soil(cfg)
-        nlcd.get_nlcd(cfg)
-        nid.get_nid(cfg)
-        nwis.get_streamflow(cfg)
+        cfg.get_data()
     except Exception:
-        console.print_exception(extra_lines=8, show_locals=True)
+        console.print_exception(extra_lines=3, show_locals=True)
         sys.exit(1)

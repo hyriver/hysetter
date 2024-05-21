@@ -10,38 +10,39 @@ from rich.console import Console
 from rich.progress import track
 
 if TYPE_CHECKING:
-    from .hysetter import Config
+    from .hysetter import Streamflow
 
 __all__ = ["get_streamflow"]
 
 
-def get_streamflow(config: Config) -> None:
+def get_streamflow(cfg_streamflow: Streamflow, streamflow_dir: Path, aoi_parquet: Path) -> None:
     """Get streamflow data for the area of interest.
 
     Parameters
     ----------
-    config : Config
-        A Config object.
+    cfg_streamflow : Streamflow
+        A Streamflow object.
+    streamflow_dir : Path
+        Path to the directory where the streamflow data will be saved.
+    aoi_parquet : Path
+        The path to the AOI parquet file.
     """
     from pygeohydro import NWIS
 
     console = Console()
-    if config.streamflow is None:
-        return
+    gdf = gpd.read_parquet(aoi_parquet)
+    streamflow_dir.mkdir(exist_ok=True, parents=True)
 
-    gdf = gpd.read_parquet(config.file_paths.aoi_parquet)
-    config.file_paths.streamflow_dir.mkdir(exist_ok=True, parents=True)
-
-    start = config.streamflow.start_date.strftime("%Y-%m-%d")
-    end = config.streamflow.end_date.strftime("%Y-%m-%d")
-    freq = "dv" if config.streamflow.frequency == "daily" else "iv"
+    start = cfg_streamflow.start_date.strftime("%Y-%m-%d")
+    end = cfg_streamflow.end_date.strftime("%Y-%m-%d")
+    freq = "dv" if cfg_streamflow.frequency == "daily" else "iv"
     nwis = NWIS()
     for i, geom in track(
         enumerate(gdf.geometry.to_crs(4326)),
         description="Getting streamflow from NWIS",
         total=len(gdf),
     ):
-        fpath = Path(config.file_paths.streamflow_dir, f"streamflow_geom_{i}.nc")
+        fpath = Path(streamflow_dir, f"streamflow_geom_{i}.nc")
         if fpath.exists():
             continue
         try:

@@ -11,7 +11,7 @@ from rich.console import Console
 from rich.progress import track
 
 if TYPE_CHECKING:
-    from .hysetter import Config
+    from .hysetter import AOI
 
 __all__ = ["get_aoi"]
 
@@ -70,41 +70,43 @@ def _get_flowlines(gdf: gpd.GeoDataFrame, flowlines_dir: Path) -> None:
         flw.to_parquet(fpath)
 
 
-def get_aoi(config: Config) -> None:
+def get_aoi(cfg_aoi: AOI, flw_dir: Path, aoi_parquet: Path) -> None:
     """Get the area of interest.
 
     Parameters
     ----------
-    config : Config
-        A Config object.
+    cfg_aoi : AOI
+        An AOI object.
+    flw_dir : Path
+        Path to the directory where the flowlines will be saved.
+    aoi_parquet : Path
+        The path to the AOI parquet file.
     """
     from pynhd import WaterData
 
     console = Console()
-    aoi = config.aoi
 
-    config.file_paths.project_dir.mkdir(exist_ok=True, parents=True)
-    if config.file_paths.aoi_parquet.exists():
-        console.print(f"Reading AOI from [bold green]{config.file_paths.aoi_parquet.resolve()}")
-        gdf = gpd.read_parquet(config.file_paths.aoi_parquet)
+    if aoi_parquet.exists():
+        console.print(f"Reading AOI from [bold green]{aoi_parquet.resolve()}")
+        gdf = gpd.read_parquet(aoi_parquet)
     else:
-        if aoi.huc_ids:
+        if cfg_aoi.huc_ids:
             console.print("Getting AOI: HUCs from WaterData.")
-            gdf = _get_hucs(aoi.huc_ids)
-        elif aoi.nhdv2_ids:
+            gdf = _get_hucs(cfg_aoi.huc_ids)
+        elif cfg_aoi.nhdv2_ids:
             console.print("Getting AOI: NHDPlusV2 catchments from WaterData.")
-            gdf = WaterData("catchmentsp").byid("featureid", aoi.nhdv2_ids)
-        elif aoi.gagesii_basins:
+            gdf = WaterData("catchmentsp").byid("featureid", cfg_aoi.nhdv2_ids)
+        elif cfg_aoi.gagesii_basins:
             console.print("Getting AOI: GAGES-II basins from WaterData.")
-            gdf = WaterData("gagesii_basins").byid("gage_id", aoi.gagesii_basins)
-        elif aoi.geometry_file:
-            console.print(f"Getting AOI: From {aoi.geometry_file}")
-            gdf = _read_geometry_file(aoi.geometry_file)
+            gdf = WaterData("gagesii_basins").byid("gage_id", cfg_aoi.gagesii_basins)
+        elif cfg_aoi.geometry_file:
+            console.print(f"Getting AOI: From {cfg_aoi.geometry_file}")
+            gdf = _read_geometry_file(cfg_aoi.geometry_file)
         else:
             raise ValueError(
                 "Only one of `huc_ids`, `nhdv2_ids`, `gagesii_basins`, or `geometry_file` must be provided."
             )
-        gdf.to_parquet(config.file_paths.aoi_parquet)
-    if aoi.nhdv2_flowlines:
-        config.file_paths.flowlines_dir.mkdir(exist_ok=True, parents=True)
-        _get_flowlines(gdf, config.file_paths.flowlines_dir)
+        gdf.to_parquet(aoi_parquet)
+    if cfg_aoi.nhdv2_flowlines:
+        flw_dir.mkdir(exist_ok=True, parents=True)
+        _get_flowlines(gdf, flw_dir)

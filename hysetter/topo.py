@@ -12,7 +12,7 @@ from rich.progress import track
 if TYPE_CHECKING:
     from xarray import DataArray
 
-    from .hysetter import Config
+    from .hysetter import Topo
 
 __all__ = ["get_topo"]
 
@@ -45,40 +45,44 @@ def _curvature(dem: DataArray) -> DataArray:
     return curvature(dem)
 
 
-def get_topo(config: Config) -> None:
+def get_topo(cfg_topo: Topo, topo_dir: Path, aoi_parquet: Path) -> None:
     """Get topo data for the area of interest.
 
     Parameters
     ----------
-    config : Config
-        A Config object.
+    cfg_topo : Topo
+        A Topo object.
+    topo_dir : Path
+        Path to the directory where the topo data will be saved.
+    aoi_parquet : Path
+        The path to the AOI parquet file.
     """
     import xarray as xr
     from py3dep import get_dem
 
     console = Console()
-    if config.topo is None:
-        return
+
     topo_functions = {"slope": _slope, "aspect": _aspect, "curvature": _curvature}
 
-    gdf = gpd.read_parquet(config.file_paths.aoi_parquet)
-    config.file_paths.topo_dir.mkdir(exist_ok=True, parents=True)
+    gdf = gpd.read_parquet(aoi_parquet)
+    topo_dir.mkdir(exist_ok=True, parents=True)
     for i, geom in track(
         enumerate(gdf.geometry), description="Getting DEM from 3DEP", total=len(gdf)
     ):
-        fpath = Path(config.file_paths.topo_dir, f"topo_geom_{i}.nc")
+        fpath = Path(topo_dir, f"topo_geom_{i}.nc")
         if fpath.exists():
             continue
         try:
-            topo = get_dem(geom, config.topo.resolution_m, gdf.crs)
+            topo = get_dem(geom, cfg_topo.resolution_m, gdf.crs)
         except Exception:
             console.print_exception(show_locals=True, max_frames=4)
             console.print(f"Failed to get topo data for AOI index {i}")
             continue
-        if config.topo.derived_variables:
+        if cfg_topo.derived_variables:
+            topo.attrs["res"] = topo.rio.resolution()
             topo_list = [
                 topo_functions[var](topo)
-                for var in config.topo.derived_variables
+                for var in cfg_topo.derived_variables
                 if var in topo_functions
             ]
             topo = xr.merge([topo, *topo_list])

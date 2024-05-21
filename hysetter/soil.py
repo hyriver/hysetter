@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from shapely import MultiPolygon, Polygon
     from xarray import DataArray, Dataset
 
-    from .hysetter import Config
+    from .hysetter import Soil
 
 __all__ = ["get_soil"]
 
@@ -179,41 +179,43 @@ def soilgrids(
     )
 
 
-def get_soil(config: Config) -> None:
+def get_soil(cfg_soil: Soil, soil_dir: Path, aoi_parquet: Path) -> None:
     """Get soil data for the area of interest.
 
     Parameters
     ----------
     config : Config
         A Config object.
+    soil_dir : Path
+        Path to the directory where the soil data will be saved.
+    aoi_parquet : Path
+        The path to the AOI parquet file.
     """
     console = Console()
-    if config.soil is None:
-        return
 
-    if config.soil.source == "gnatsgo":
+    if cfg_soil.source == "gnatsgo":
         import pygeohydro as gh
 
         soil_func = gh.soil_gnatsgo
-    elif config.soil.source == "soilgrids":
+    elif cfg_soil.source == "soilgrids":
         soil_func = soilgrids
     else:
         raise ValueError("Unknown forcing source.")
 
-    gdf = gpd.read_parquet(config.file_paths.aoi_parquet)
+    gdf = gpd.read_parquet(aoi_parquet)
     source_name = {
         "gnatsgo": "gNATSGO",
         "soilgrids": "SoilGrids",
-    }[config.soil.source]
-    config.file_paths.soil_dir.mkdir(exist_ok=True, parents=True)
+    }[cfg_soil.source]
+    soil_dir.mkdir(exist_ok=True, parents=True)
     for i, geom in track(
         enumerate(gdf.geometry), description=f"Getting soil from {source_name}", total=len(gdf)
     ):
-        fpath = Path(config.file_paths.soil_dir, f"{config.soil.source}_geom_{i}.nc")
+        fpath = Path(soil_dir, f"{cfg_soil.source}_geom_{i}.nc")
         if fpath.exists():
             continue
         try:
-            soil = soil_func(config.soil.variables, geom, gdf.crs)
+            soil = soil_func(cfg_soil.variables, geom, gdf.crs)
         except Exception:
             console.print_exception(show_locals=True, max_frames=4)
             console.print(f"Failed to get soil for AOI index {i}")

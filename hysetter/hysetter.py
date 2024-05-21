@@ -12,10 +12,11 @@ import yaml
 from pydantic import BaseModel, Field, ValidationError, model_validator
 from typing_extensions import Self
 
+from . import aoi, forcing, nid, nlcd, nwis, soil, topo
+
 __all__ = ["read_config", "write_config"]
 
 yaml_load = functools.partial(yaml.load, Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader))
-Dumper = getattr(yaml, "CSafeDumper", yaml.SafeDumper)
 
 
 def yaml_dump(o: Any, **kwargs: Any) -> str:
@@ -23,11 +24,11 @@ def yaml_dump(o: Any, **kwargs: Any) -> str:
 
     Notes
     -----
-    When python/mypy#1484 is solved, this can be `functools.partial`
+    When python/mypy#1484 is solved, this can be ``functools.partial``
     """
     return yaml.dump(
         o,
-        Dumper=Dumper,
+        Dumper=getattr(yaml, "CSafeDumper", yaml.SafeDumper),
         stream=None,
         default_flow_style=False,
         indent=2,
@@ -222,15 +223,15 @@ class Streamflow(BaseModel):
 class FilePaths:
     """File paths to store the data."""
 
-    project_dir: Path
+    project: Path
     aoi_parquet: Path
-    flowlines_dir: Path
-    forcing_dir: Path
-    topo_dir: Path
-    soil_dir: Path
-    nlcd_dir: Path
-    nid_dir: Path
-    streamflow_dir: Path
+    flowlines: Path
+    forcing: Path
+    topo: Path
+    soil: Path
+    nlcd: Path
+    nid: Path
+    streamflow: Path
 
 
 class Config(BaseModel):
@@ -258,8 +259,6 @@ class Config(BaseModel):
         National Inventory of Dams (NID) data, by default None.
     streamflow : Streamflow, optional
         Streamflow data from NWIS, by default None.
-    file_paths : FilePaths
-        File paths to store the data.
     """
 
     project: Project
@@ -276,16 +275,36 @@ class Config(BaseModel):
         super().__init__(**data)
         project_dir = Path(self.project.data_dir, self.project.name.replace(" ", "_"))
         self.file_paths = FilePaths(
-            project_dir=project_dir,
+            project=project_dir,
             aoi_parquet=Path(project_dir, "aoi.parquet"),
-            flowlines_dir=Path(project_dir, "nhdv2_flowlines"),
-            forcing_dir=Path(project_dir, "forcing"),
-            topo_dir=Path(project_dir, "topo"),
-            soil_dir=Path(project_dir, "soil"),
-            nlcd_dir=Path(project_dir, "nlcd"),
-            nid_dir=Path(project_dir, "nid"),
-            streamflow_dir=Path(project_dir, "streamflow"),
+            flowlines=Path(project_dir, "nhdv2_flowlines"),
+            forcing=Path(project_dir, "forcing"),
+            topo=Path(project_dir, "topo"),
+            soil=Path(project_dir, "soil"),
+            nlcd=Path(project_dir, "nlcd"),
+            nid=Path(project_dir, "nid"),
+            streamflow=Path(project_dir, "streamflow"),
         )
+
+    def get_data(self) -> None:
+        """Iterate over non-None attributes."""
+        get_func = {
+            "aoi": aoi.get_aoi,
+            "forcing": forcing.get_forcing,
+            "topo": topo.get_topo,
+            "soil": soil.get_soil,
+            "nlcd": nlcd.get_nlcd,
+            "nid": nid.get_nid,
+            "streamflow": nwis.get_streamflow,
+        }
+        self.file_paths.project.mkdir(exist_ok=True, parents=True)
+        for name, func in get_func.items():
+            cfg = getattr(self, name)
+            if cfg is not None:
+                fdir = (
+                    self.file_paths.flowlines if name == "aoi" else getattr(self.file_paths, name)
+                )
+                func(cfg, fdir, self.file_paths.aoi_parquet)
 
 
 def read_config(file_path: str | Path) -> Config:

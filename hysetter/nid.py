@@ -10,36 +10,37 @@ from rich.console import Console
 from rich.progress import track
 
 if TYPE_CHECKING:
-    from .hysetter import Config
+    from .hysetter import NID
 
 __all__ = ["get_nid"]
 
 
-def get_nid(config: Config) -> None:
+def get_nid(cfg_nid: NID, nid_dir: Path, aoi_parquet: Path) -> None:
     """Get NID data for the area of interest.
 
     Parameters
     ----------
-    config : Config
-        A Config object.
+    cfg_nid : NID
+        A NID object.
+    nid_dir : Path
+        Path to the directory where the NID data will be saved.
+    aoi_parquet : Path
+        The path to the AOI parquet file.
     """
     from pygeohydro import NID
 
     console = Console()
-    if config.nid is None:
-        return
-
-    gdf = gpd.read_parquet(config.file_paths.aoi_parquet)
-    config.file_paths.nid_dir.mkdir(exist_ok=True, parents=True)
+    gdf = gpd.read_parquet(aoi_parquet)
+    nid_dir.mkdir(exist_ok=True, parents=True)
     nid = NID()
-    nid.stage_nid_inventory(Path(config.file_paths.project_dir, "full_nid_inventory.parquet"))
-    if not config.nid.within_aoi:
+    nid.stage_nid_inventory(Path(nid_dir, "full_nid_inventory.parquet"))
+    if not cfg_nid.within_aoi:
         return
 
     for i, geom in track(
         enumerate(gdf.geometry), description="Getting dams from NID", total=len(gdf)
     ):
-        fpath = Path(config.file_paths.nid_dir, f"nid_geom_{i}.parquet")
+        fpath = Path(nid_dir, f"nid_geom_{i}.parquet")
         if fpath.exists():
             continue
         try:
