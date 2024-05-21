@@ -56,6 +56,7 @@ dependencies = [
   "pyyaml",
   "rich",
   "rich-click>=1.8.2",
+  "rioxarray>=0.15.5",
   "typing-extensions",
   "xarray>=2024.5",
   "xarray-spatial",
