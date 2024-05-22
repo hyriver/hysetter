@@ -50,7 +50,9 @@ over conterminous United States (CONUS):
 
 - **Area Of Interest**: From any `HUC <https://www.usgs.gov/national-hydrography/watershed-boundary-dataset>`__
   level, `GAGES-II basins <https://pubs.usgs.gov/publication/70046617>`__,
-  `NHDPlusV2 <https://www.nhdplus.com/NHDPlus/NHDPlusV2_home.php>`__ catchments,
+  `NHDPlusV2 <https://www.nhdplus.com/NHDPlus/NHDPlusV2_home.php>`__ catchments and their
+  attributes (`StreamCat <https://www.epa.gov/national-aquatic-resource-surveys/streamcat-dataset>`__
+  and `NLDI <https://labs.waterdata.usgs.gov/docs/nldi/about-nldi/index.html>`__),
   or a user-defined GeoDataFrame
 - **Drainage Network**: From NHDPlusV2
 - **Forcing**: From `Daymet <https://daymet.ornl.gov/>`__,
