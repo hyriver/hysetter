@@ -84,4 +84,5 @@ def cover(session: nox.Session) -> None:
     """Coverage analysis."""
     session.install("coverage[toml]")
     session.run("coverage", "report")
+    session.run("coverage", "html")
     session.run("coverage", "erase")
