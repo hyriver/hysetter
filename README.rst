@@ -112,7 +112,8 @@ configuration file in the
 .. image:: https://raw.githubusercontent.com/hyriver/hysetter/main/hs_help.svg
     :align: center
 
-.. image:: https://raw.githubusercontent.com/hyriver/hysetter/main/hs_demo.gif
+.. image:: https://asciinema.org/a/660577.svg
+    :target: https://asciinema.org/a/660577?autoplay=1
     :align: center
 
 Contributing
