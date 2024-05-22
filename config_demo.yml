@@ -18,6 +18,14 @@ aoi:
   # with this pattern `aio_geom_X.parquet` where `X` is the row number
   # in the AOI GeoDataFrame.
   nhdv2_flowlines: true
+  # A list of valid StreamCat attributes to get for flowlines within AOI.
+  # You can use `pynhd.streamcat()` to get a dataframe of the attrs'
+  # names and descriptions
+  streamcat_attrs: [fert, bfi]
+  # A list of valid StreamCat attributes to get for flowlines within AOI.
+  # You can use `pynhd.nhdplus_attrs_s3()` get a dataframe of the attrs'
+  # names and descriptions
+  nldi_attrs: [CAT_BFI, CAT_PET]
 forcing:
   # Could be `daymet`, `gridmet`, or `nldas2`
   source: daymet

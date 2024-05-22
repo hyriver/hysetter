@@ -47,27 +47,55 @@ def _read_geometry_file(geometry_file: str) -> gpd.GeoDataFrame:
     return gdf
 
 
-def _get_flowlines(gdf: gpd.GeoDataFrame, flowlines_dir: Path) -> None:
+def _get_flowlines(
+    gdf: gpd.GeoDataFrame,
+    flowlines_dir: Path,
+    sc_attrs: list[str] | None,
+    nldi_attrs: list[str] | None,
+) -> None:
     """Get flowlines."""
-    from pynhd import WaterData
+    from pynhd import NLDI, WaterData, streamcat
 
     console = Console()
     wd = WaterData("nhdflowline_network")
+
+    if sc_attrs or nldi_attrs:
+        description = "Getting flowlines and their attributes"
+    else:
+        description = "Getting flowlines from WaterData"
+
+    nldi = NLDI() if nldi_attrs else None
     for i, geom in track(
         enumerate(gdf.geometry),
-        description="Getting NHDPlusV2 flowlines from WaterData",
+        description=description,
         total=len(gdf),
     ):
         fpath = Path(flowlines_dir, f"aoi_geom_{i}.parquet")
-        if fpath.exists():
-            continue
-        try:
-            flw = wd.bygeom(geom, gdf.crs)
-        except Exception:
-            console.print_exception(show_locals=True, max_frames=4)
-            console.print(f"Failed to get flowlines for AOI {i}.")
-            continue
-        flw.to_parquet(fpath)
+        if not fpath.exists():
+            try:
+                wd.bygeom(geom, gdf.crs).to_parquet(fpath)
+            except Exception:
+                console.print_exception(show_locals=True, max_frames=4)
+                console.print(f"Failed to get flowlines for AOI {i}.")
+
+        comids = gpd.read_parquet(fpath).comid.tolist()
+        fpath = Path(flowlines_dir, f"streamcat_geom_{i}.parquet")
+        if sc_attrs and not fpath.exists():
+            try:
+                streamcat(sc_attrs, "catchment", comids).to_parquet(fpath)
+            except Exception:
+                console.print_exception(show_locals=True, max_frames=4)
+                console.print(f"Failed to get StreamCat for AOI {i}.")
+
+        fpath = Path(flowlines_dir, f"nldi_geom_{i}.parquet")
+        if nldi_attrs and nldi and not fpath.exists():
+            try:
+                nldi.getcharacteristic_byid(
+                    comids, "local", "comid", nldi_attrs, values_only=True
+                ).to_parquet(fpath)
+            except Exception:
+                console.print_exception(show_locals=True, max_frames=4)
+                console.print(f"Failed to get NLDI attrs for AOI {i}.")
 
 
 def get_aoi(cfg_aoi: AOI, flw_dir: Path, aoi_parquet: Path) -> None:
@@ -107,6 +135,7 @@ def get_aoi(cfg_aoi: AOI, flw_dir: Path, aoi_parquet: Path) -> None:
                 "Only one of `huc_ids`, `nhdv2_ids`, `gagesii_basins`, or `geometry_file` must be provided."
             )
         gdf.to_parquet(aoi_parquet)
-    if cfg_aoi.nhdv2_flowlines:
+
+    if cfg_aoi.nhdv2_flowlines or cfg_aoi.streamcat_attrs or cfg_aoi.nldi_attrs:
         flw_dir.mkdir(exist_ok=True, parents=True)
-        _get_flowlines(gdf, flw_dir)
+        _get_flowlines(gdf, flw_dir, cfg_aoi.streamcat_attrs, cfg_aoi.nldi_attrs)

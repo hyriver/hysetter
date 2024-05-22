@@ -77,6 +77,14 @@ class AOI(BaseModel):
         ``geopandas.read_file`` (e.g., ``.shp``, ``.geojson``, and ``.gpkg``).
     nhdv2_flowlines : bool, optional
         Whether to retrieve the NHDPlus V2 flowlines within the AOI, by default False.
+    streamcat_attrs : list of str, optional
+        List of StreamCat attributes to retrieve, by default None. This will
+        set the ``nhdv2_flowlines`` to True. Use ``pynhd.StreamCat().metrics_df``
+        to get a dataframe of all available attributes with their descriptions.
+    nldi_attrs : list of str, optional
+        List of slelect attributes to retrieve, by default None.
+        Use ``pynhd.nhdplus_attrs_s3()`` to get a dataframe of all available
+        attributes with their descriptions.
     """
 
     huc_ids: list[str] | None = None
@@ -84,6 +92,8 @@ class AOI(BaseModel):
     gagesii_basins: list[str] | None = None
     geometry_file: str | None = None
     nhdv2_flowlines: bool = False
+    streamcat_attrs: list[str] | None = None
+    nldi_attrs: list[str] | None = None
 
     @model_validator(mode="after")
     def check_exclusive_options(self) -> Self:
