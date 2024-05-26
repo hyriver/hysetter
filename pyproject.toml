@@ -48,6 +48,7 @@ dependencies = [
   "pynhd>=0.16.3",
   "pynldas2>=0.16",
   "pyogrio",
+  "pyarrow>=1.0.1",
   "pystac-client",
   "pyyaml",
   "rich-click>=1.8.2",
