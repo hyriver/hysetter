@@ -6,7 +6,7 @@ import functools
 from dataclasses import dataclass
 from datetime import datetime  # noqa: TCH003
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 import yaml
 from pydantic import BaseModel, Field, ValidationError, model_validator
@@ -14,9 +14,35 @@ from typing_extensions import Self
 
 from . import aoi, forcing, nid, nlcd, nwis, soil, topo
 
-__all__ = ["read_config", "write_config"]
+if TYPE_CHECKING:
+    from yaml.nodes import Node
+
+__all__ = [
+    "read_config",
+    "write_config",
+    "AOI",
+    "Config",
+    "Project",
+    "Forcing",
+    "Topo",
+    "Soil",
+    "NLCD",
+    "NID",
+    "Streamflow",
+    "FilePaths",
+]
 
 yaml_load = functools.partial(yaml.load, Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader))
+SafeDumper = getattr(yaml, "CSafeDumper", yaml.SafeDumper)
+
+
+class PathDumper(SafeDumper):  # pyright: ignore[reportGeneralTypeIssues,reportUntypedBaseClass]
+    """A dumper that can represent pathlib.Path objects as strings."""
+
+    def represent_data(self, data: Any) -> Node:
+        if isinstance(data, Path):
+            return self.represent_scalar("tag:yaml.org,2002:str", str(data))
+        return super().represent_data(data)
 
 
 def yaml_dump(o: Any, **kwargs: Any) -> str:
@@ -28,7 +54,7 @@ def yaml_dump(o: Any, **kwargs: Any) -> str:
     """
     return yaml.dump(
         o,
-        Dumper=getattr(yaml, "CSafeDumper", yaml.SafeDumper),
+        Dumper=PathDumper,
         stream=None,
         default_flow_style=False,
         indent=2,
@@ -322,7 +348,7 @@ def read_config(file_path: str | Path) -> Config:
 
     Parameters
     ----------
-    file_path : str or Path
+    file_path : str or pathlib.Path
         Path to the configuration file.
 
     Returns
@@ -344,7 +370,7 @@ def write_config(config: Config, file_path: str | Path) -> None:
     ----------
     config : Config
         A Config object.
-    file_path : str or Path
+    file_path : str or pathlib.Path
         Path to the configuration file.
     """
     Path(file_path).write_text(yaml_dump(config.model_dump()))
