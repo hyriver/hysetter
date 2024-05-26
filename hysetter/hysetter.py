@@ -40,6 +40,7 @@ class PathDumper(SafeDumper):  # pyright: ignore[reportGeneralTypeIssues,reportU
     """A dumper that can represent pathlib.Path objects as strings."""
 
     def represent_data(self, data: Any) -> Node:
+        """Represent Path objects as strings."""
         if isinstance(data, Path):
             return self.represent_scalar("tag:yaml.org,2002:str", str(data))
         return super().represent_data(data)

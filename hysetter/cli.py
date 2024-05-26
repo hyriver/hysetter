@@ -22,6 +22,7 @@ def get_versions() -> dict[str, str]:
     """Get the versions of the dependencies."""
 
     def _get_version(module: str) -> str:
+        """Get the version of the module."""
         try:
             return importlib.metadata.version(module)
         except importlib.metadata.PackageNotFoundError:
