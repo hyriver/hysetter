@@ -105,9 +105,9 @@ def get_aoi(cfg_aoi: AOI, flw_dir: Path, aoi_parquet: Path) -> None:
     ----------
     cfg_aoi : AOI
         An AOI object.
-    flw_dir : Path
+    flw_dir : pathlib.Path
         Path to the directory where the flowlines will be saved.
-    aoi_parquet : Path
+    aoi_parquet : pathlib.Path
         The path to the AOI parquet file.
     """
     from pynhd import WaterData
