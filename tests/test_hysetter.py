@@ -18,6 +18,8 @@ def runner():
 def test_config(runner: CliRunner) -> None:
     ret = runner.invoke(cli, ["config_demo.yml"])
     assert ret.exit_code == 0
+    ret = runner.invoke(cli, ["config_demo.yml", "--overwrite"])
+    assert ret.exit_code == 0
 
 
 def test_show_versions() -> None:
