@@ -73,7 +73,8 @@ def get_topo(cfg_topo: Topo, topo_dir: Path, aoi_parquet: Path) -> None:
         if fpath.exists():
             continue
         try:
-            topo = get_dem(geom, cfg_topo.resolution_m, gdf.crs)
+            topo = get_dem(geom, cfg_topo.resolution_m, gdf.crs).rio.reproject(5070)
+            topo = topo.where(topo.notnull(), drop=True).rio.write_transform()
         except Exception:
             console.print_exception(show_locals=True, max_frames=4)
             console.print(f"Failed to get topo data for AOI index {i}")
