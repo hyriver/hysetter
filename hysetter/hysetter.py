@@ -246,7 +246,7 @@ class Streamflow(BaseModel):
 
     start_date: datetime
     end_date: datetime
-    frequency: str
+    frequency: Literal["daily", "instantaneous"]
 
     @model_validator(mode="after")
     def check_exclusive_options(self) -> Self:
