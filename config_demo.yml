@@ -4,6 +4,8 @@ project:
   name: example_1
   data_dir: data
 aoi:
+  # Only one of `huc_ids`, `nhdv2_ids`, `gagesii_basins`, or `geometry_file`
+  # should be given.
   # Could be a mix of different HUC levels
   huc_ids: []
   # NHDPlusV2 catchment IDs (featureid)
