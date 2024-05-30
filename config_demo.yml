@@ -24,8 +24,8 @@ aoi:
   # You can use `pynhd.streamcat()` to get a dataframe of the attrs'
   # names and descriptions
   streamcat_attrs: [fert, bfi]
-  # A list of valid StreamCat attributes to get for flowlines within AOI.
-  # You can use `pynhd.nhdplus_attrs_s3()` get a dataframe of the attrs'
+  # A list of valid NLDI attributes to get for flowlines within AOI.
+  # You can use `pynhd.nhdplus_attrs_s3()` to get a dataframe of the attrs'
   # names and descriptions
   nldi_attrs: [CAT_BFI, CAT_PET]
 forcing:
