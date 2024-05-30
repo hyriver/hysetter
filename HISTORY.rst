@@ -2,11 +2,11 @@
 History
 =======
 
-0.1.1 (2024-XX-XX)
+0.1.1 (2024-05-30)
 ------------------
 
 New features
-^^^^^^^^^^^^^
+~~~~~~~~~~~~
 - Add support for getting StreamCat and NLDI catchment-level attributes.
   Target attributes can passed through ``streamcat_attrs`` and ``nldi_attrs``
   fields in the config file. Check out the
@@ -14,7 +14,7 @@ New features
   for more details.
 
 Enhancements
-^^^^^^^^^^^^
+~~~~~~~~~~~~
 - Add a new method to the ``Config`` class called ``get_data`` to get the
   data efficiently by lazy loading functions and their dependencies.
 - Refactored the CLI to use the new ``get_data`` method.
