@@ -12,7 +12,7 @@ aoi:
   nhdv2_ids: []
   # GAGES-II basin ID
   gagesii_basins: ['01031500', '01031450']
-  # Could be paruqet, feather or anything that geopandas.read_file acceps
+  # Could be paruqet, feather or anything that geopandas.read_file accepts
   geometry_file: ''
   # Whether to get NHDPlusV2 flowlines within AOI.
   # Flowlines for each geometry (row) in the AOI will be saved to a
