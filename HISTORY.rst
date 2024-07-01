@@ -2,6 +2,17 @@
 History
 =======
 
+0.1.2 (2024-XX-XX)
+------------------
+
+Internal Changes
+~~~~~~~~~~~~~~~~
+- Add the ``exceptions`` module to the high-level API.
+- Switch to using the ``src`` layout instead of the ``flat`` layout
+  for the package structure. This is to make the package more
+  maintainable and to avoid any potential conflicts with other
+  packages.
+
 0.1.1 (2024-05-30)
 ------------------
 
