@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from importlib.metadata import PackageNotFoundError, version
 
+from . import exceptions
 from .aoi import get_aoi
 from .forcing import get_forcing
 from .hysetter import Config, read_config, write_config
@@ -31,5 +32,6 @@ __all__ = [
     "get_nlcd",
     "get_nid",
     "get_streamflow",
+    "exceptions",
     "__version__",
 ]
