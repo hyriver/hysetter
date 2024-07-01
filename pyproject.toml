@@ -1,8 +1,9 @@
 [build-system]
-build-backend = "setuptools.build_meta"
+build-backend = "hatchling.build"
+
 requires = [
-  "setuptools>=60",
-  "setuptools-scm>=8",
+  "hatch-vcs",
+  "hatchling",
 ]
 
 [project]
@@ -68,26 +69,13 @@ urls.Homepage = "https://docs.hyriver.io/readme/hysetter.html"
 urls.Issues = "https://github.com/hyriver/hysetter/issues"
 scripts.hysetter = "hysetter.cli:cli"
 
-[tool.setuptools]
-include-package-data = true
-license-files = [
-  "LICENSE",
-]
-platforms = [
-  "any",
-]
-zip-safe = false
+[tool.hatch.version]
+source = "vcs"
 
-[tool.setuptools.package-data]
-hysetter = [
-  "py.typed",
+[tool.hatch.build.targets.wheel]
+packages = [
+  "src/hysetter",
 ]
-
-[tool.setuptools.packages]
-find = { namespaces = false }
-
-[tool.setuptools_scm]
-fallback_version = "999"
 
 [tool.ruff]
 target-version = "py310"
@@ -215,7 +203,6 @@ filterwarnings = [
 ]
 testpaths = [
   "tests",
-  "hysetter",
 ]
 
 [tool.coverage.report]
@@ -232,7 +219,7 @@ omit = [
 ]
 parallel = true
 source = [
-  "hysetter",
+  "src/hysetter",
 ]
 
 [tool.pyright]
@@ -243,7 +230,7 @@ exclude = [
   "tests/",
 ]
 include = [
-  "hysetter",
+  "src/hysetter",
 ]
 reportMissingTypeStubs = false
 reportUnknownArgumentType = false
