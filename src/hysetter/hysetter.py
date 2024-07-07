@@ -98,6 +98,12 @@ class AOI(BaseModel):
         and are assumed to be NHDPlus V2 catchment IDs.
     gagesii_basins : list of str, optional
         List of GAGES-II basin IDs, by default None. The IDs must be strings.
+    mainstem_main : int, optional
+        NHDPlus V2 mainstem ID to get only its main upstream flowlines,
+        by default None. The ID must be an integer.
+    mainstem_tributaries : bool, optional
+        NHDPus V2 mainstem ID to get all its upstream tributaries, by default None.
+        The ID must be an integer.
     geometry_file : str, optional
         Path to a geometry file, by default None. Supported file extensions are
         ``.feather``, ``.parquet``, and any format supported by
@@ -117,6 +123,8 @@ class AOI(BaseModel):
     huc_ids: list[str] | None = None
     nhdv2_ids: list[int] | None = None
     gagesii_basins: list[str] | None = None
+    mainstem_main: int | None = None
+    mainstem_tributaries: int | None = None
     geometry_file: str | None = None
     nhdv2_flowlines: bool = False
     streamcat_attrs: list[str] | None = None
@@ -127,13 +135,25 @@ class AOI(BaseModel):
         """Check if only one of the options is provided."""
         provided_options = [
             option
-            for option in (self.huc_ids, self.nhdv2_ids, self.gagesii_basins, self.geometry_file)
+            for option in (
+                self.huc_ids,
+                self.nhdv2_ids,
+                self.gagesii_basins,
+                self.mainstem_main,
+                self.geometry_file,
+            )
             if option
         ]
         if len(provided_options) != 1:
-            raise ValueError(
-                "Only one of `huc_ids`, `nhdv2_ids`, `gagesii_basins`, or `geometry_file` must be provided."
+            options = (
+                "`huc_ids`",
+                "`nhdv2_ids`",
+                "`gagesii_basins`",
+                "`mainstem_main`",
+                "`geometry_file`",
             )
+            op_list = ", ".join(options[:-1]) + f", or {options[-1]}"
+            raise ValueError(f"Only one of {op_list} must be provided.")
         return self
 
 

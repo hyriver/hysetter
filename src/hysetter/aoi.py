@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Literal, cast
 
 import geopandas as gpd
 import pandas as pd
 from rich.console import Console
 from rich.progress import track
+
+from .exceptions import InputTypeError
 
 if TYPE_CHECKING:
     from .hysetter import AOI
@@ -22,13 +25,64 @@ def _get_hucs(huc_ids: list[str]) -> gpd.GeoDataFrame:
 
     huc_df = pd.Series(huc_ids).astype(str)
     if not huc_df.str.len().isin([2, 4, 6, 8, 10, 12]).all():
-        raise ValueError("HUC IDs must be strings and have even lengths between 2 and 12.")
+        raise InputTypeError("huc_ids", "strings of lengths between 2 and 12.")
     huc_dict = huc_df.groupby(huc_df.str.len()).apply(list).to_dict()
     aoi_list = []
     for lvl, ids in huc_dict.items():
         wd = WaterData(f"wbd{str(lvl).zfill(2)}")  # pyright: ignore[reportArgumentType]
         aoi_list.append(wd.byid(f"huc{lvl}", ids))
     return gpd.GeoDataFrame(pd.concat(aoi_list, ignore_index=True))
+
+
+def _get_mainstem(
+    mainstem_id: int,
+    navigation: Literal["upstreamMain", "upstreamTributaries"],
+    project_dir: Path,
+    get_flw: bool,
+    nldi_attrs: list[str] | None,
+    sc_attrs: list[str] | None,
+) -> gpd.GeoDataFrame:
+    """Get NHDPlus V2 catchments for ComIDs of a mainstem."""
+    import pygeoutils as pgu
+    from pynhd import NLDI, GeoConnex, WaterData, streamcat
+
+    project_dir.mkdir(exist_ok=True, parents=True)
+    outlet_id = (
+        GeoConnex("mainstems")
+        .byid("id", str(mainstem_id))
+        .outlet_nhdpv2_comid.str.split("/")
+        .str[-1]
+        .iloc[0]
+    )
+    nldi = NLDI()
+    comids = nldi.navigate_byid(
+        "comid", outlet_id, navigation, source="flowlines", distance=9999
+    ).nhdplus_comid.tolist()
+    if get_flw:
+        wd = WaterData("nhdflowline_network")
+        fpath = Path(project_dir, "flowlines.parquet")
+        if not fpath.exists():
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", UserWarning)
+                flw = wd.byid("comid", comids)
+                flw.to_parquet(fpath)
+    if sc_attrs:
+        fpath = Path(project_dir, "streamcat_attrs.parquet")
+        if not fpath.exists():
+            streamcat(sc_attrs, "catchment", comids).to_parquet(fpath)
+
+    if nldi_attrs:
+        fpath = Path(project_dir, "nldi_attrs.parquet")
+        if not fpath.exists():
+            nldi.getcharacteristic_byid(
+                comids, "local", "comid", nldi_attrs, values_only=True
+            ).to_parquet(fpath)
+
+    wd = WaterData("catchmentsp")
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", UserWarning)
+        cat = wd.byid("featureid", comids)
+        return pgu.multi2poly(cat)
 
 
 def _read_geometry_file(geometry_file: str) -> gpd.GeoDataFrame:
@@ -118,6 +172,7 @@ def get_aoi(cfg_aoi: AOI, flw_dir: Path, aoi_parquet: Path) -> None:
         console.print(f"Reading AOI from [bold green]{aoi_parquet.resolve()}")
         gdf = gpd.read_parquet(aoi_parquet)
     else:
+        gdf = None
         if cfg_aoi.huc_ids:
             console.print("Getting AOI: HUCs from WaterData.")
             gdf = _get_hucs(cfg_aoi.huc_ids)
@@ -127,13 +182,42 @@ def get_aoi(cfg_aoi: AOI, flw_dir: Path, aoi_parquet: Path) -> None:
         elif cfg_aoi.gagesii_basins:
             console.print("Getting AOI: GAGES-II basins from WaterData.")
             gdf = WaterData("gagesii_basins").byid("gage_id", cfg_aoi.gagesii_basins)
+        elif cfg_aoi.mainstem_main:
+            console.print("Getting AOI: Mainstem catchments (main only) from GeoConnex.")
+            try:
+                gdf = _get_mainstem(
+                    cfg_aoi.mainstem_main,
+                    "upstreamMain",
+                    flw_dir.parent,
+                    cfg_aoi.nhdv2_flowlines,
+                    cfg_aoi.nldi_attrs,
+                    cfg_aoi.streamcat_attrs,
+                )
+            except Exception:
+                console.print_exception(show_locals=True, max_frames=4)
+                console.print(f"Failed to get data for {cfg_aoi.mainstem_main}.")
+            return
+        elif cfg_aoi.mainstem_tributaries:
+            console.print("Getting AOI: Mainstem catchments (tributaries) from GeoConnex.")
+            try:
+                gdf = _get_mainstem(
+                    cfg_aoi.mainstem_tributaries,
+                    "upstreamTributaries",
+                    flw_dir.parent,
+                    cfg_aoi.nhdv2_flowlines,
+                    cfg_aoi.nldi_attrs,
+                    cfg_aoi.streamcat_attrs,
+                )
+            except Exception:
+                console.print_exception(show_locals=True, max_frames=4)
+                console.print(f"Failed to get data for {cfg_aoi.mainstem_main}.")
+            return
         elif cfg_aoi.geometry_file:
             console.print(f"Getting AOI: From {cfg_aoi.geometry_file}")
             gdf = _read_geometry_file(cfg_aoi.geometry_file)
-        else:
-            raise ValueError(
-                "Only one of `huc_ids`, `nhdv2_ids`, `gagesii_basins`, or `geometry_file` must be provided."
-            )
+
+        if gdf is None:
+            raise ValueError
         gdf.to_parquet(aoi_parquet)
 
     if cfg_aoi.nhdv2_flowlines or cfg_aoi.streamcat_attrs or cfg_aoi.nldi_attrs:
