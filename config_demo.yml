@@ -3,15 +3,21 @@ project:
   # Data will be stored in `data_dir/name`
   name: example_1
   data_dir: data
+# Only one of `huc_ids`, `nhdv2_ids`, `gagesii_basins`, `mainstem_main`
+# `mainstem_tributaries`, or `geometry_file` should be given.
 aoi:
-  # Only one of `huc_ids`, `nhdv2_ids`, `gagesii_basins`, or `geometry_file`
-  # should be given.
   # Could be a mix of different HUC levels
   huc_ids: []
   # NHDPlusV2 catchment IDs (featureid)
   nhdv2_ids: []
-  # GAGES-II basin ID
+  # GAGES-II basin IDs
   gagesii_basins: ['01031500', '01031450']
+  # NHDPlusV2 catchments belonging to the main flowlines upstream of
+  # the provided mainstem ID
+  # mainstem_main: '323742'
+  # NHDPlusV2 catchments belonging to the tributaries upstream of
+  # the provided mainstem ID
+  # mainstem_tributaries: '323742'
   # Could be paruqet, feather or anything that geopandas.read_file accepts
   geometry_file: ''
   # Whether to get NHDPlusV2 flowlines within AOI.
