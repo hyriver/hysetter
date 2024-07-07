@@ -2,8 +2,16 @@
 History
 =======
 
-0.1.2 (2024-XX-XX)
+0.2.0 (2024-XX-XX)
 ------------------
+
+New features
+~~~~~~~~~~~~
+- Add two new AOI sources: ``mainstem_main`` and ``mainstem_tributaries``.
+  The ``mainstem_main`` source gets the catchments of the main flowlines belonging
+  to the given mainstem ID, whereas the ``mainstem_tributaries`` source gets the
+  catchments of the tributaries of the main flowlines belonging to the given mainstem ID.
+
 
 Internal Changes
 ~~~~~~~~~~~~~~~~
@@ -12,6 +20,7 @@ Internal Changes
   for the package structure. This is to make the package more
   maintainable and to avoid any potential conflicts with other
   packages.
+- Add artifact attestations to the release workflow.
 
 0.1.1 (2024-05-30)
 ------------------
