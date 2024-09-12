@@ -66,24 +66,6 @@ over conterminous United States (CONUS):
 - **Land Use/Land Cover, Canopy, Imperviousness, and Urban Descriptor**:
   From `MRLC <https://www.mrlc.gov/>`__
 
-Citation
---------
-If you use any of HyRiver packages in your research, we appreciate citations:
-
-.. code-block:: bibtex
-
-    @article{Chegini_2021,
-        author = {Chegini, Taher and Li, Hong-Yi and Leung, L. Ruby},
-        doi = {10.21105/joss.03175},
-        journal = {Journal of Open Source Software},
-        month = {10},
-        number = {66},
-        pages = {1--3},
-        title = {{HyRiver: Hydroclimate Data Retriever}},
-        volume = {6},
-        year = {2021}
-    }
-
 Installation
 ------------
 You can install ``hysetter`` using ``pip``:
