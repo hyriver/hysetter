@@ -20,23 +20,14 @@ if TYPE_CHECKING:
 __all__ = [
     "read_config",
     "write_config",
-    "AOI",
     "Config",
-    "Project",
-    "Forcing",
-    "Topo",
-    "Soil",
-    "NLCD",
-    "NID",
-    "Streamflow",
-    "FilePaths",
 ]
 
 yaml_load = functools.partial(yaml.load, Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader))
 SafeDumper = getattr(yaml, "CSafeDumper", yaml.SafeDumper)
 
 
-class PathDumper(SafeDumper):  # pyright: ignore[reportGeneralTypeIssues,reportUntypedBaseClass]
+class _PathDumper(SafeDumper):  # pyright: ignore[reportGeneralTypeIssues,reportUntypedBaseClass]
     """A dumper that can represent pathlib.Path objects as strings."""
 
     def represent_data(self, data: Any) -> Node:
@@ -46,7 +37,7 @@ class PathDumper(SafeDumper):  # pyright: ignore[reportGeneralTypeIssues,reportU
         return super().represent_data(data)
 
 
-def yaml_dump(o: Any, **kwargs: Any) -> str:
+def _yaml_dump(o: Any, **kwargs: Any) -> str:
     """Dump YAML.
 
     Notes
@@ -55,7 +46,7 @@ def yaml_dump(o: Any, **kwargs: Any) -> str:
     """
     return yaml.dump(
         o,
-        Dumper=PathDumper,
+        Dumper=_PathDumper,
         stream=None,
         default_flow_style=False,
         indent=2,
@@ -89,33 +80,33 @@ class AOI(BaseModel):
 
     Parameters
     ----------
-    huc_ids : list of str, optional
-        List of HUC IDs, by default None. The IDs must be strings and HUC
+    huc_ids : list, optional
+        List of HUC IDs, by default ``None``.. The IDs must be strings and HUC
         level will be determined by the length of the string (even numbers
         between 2 and 12).
-    nhdv2_ids : list of int, optional
-        List of NHD Feature IDs, by default None. The IDs must be integers
+    nhdv2_ids : list, optional
+        List of NHD Feature IDs, by default ``None``.. The IDs must be integers
         and are assumed to be NHDPlus V2 catchment IDs.
-    gagesii_basins : list of str, optional
-        List of GAGES-II basin IDs, by default None. The IDs must be strings.
+    gagesii_basins : list, optional
+        List of GAGES-II basin IDs, by default ``None``.. The IDs must be strings.
     mainstem_main : int, optional
         NHDPlus V2 mainstem ID to get only its main upstream flowlines,
-        by default None. The ID must be an integer.
+        by default ``None``.. The ID must be an integer.
     mainstem_tributaries : bool, optional
-        NHDPus V2 mainstem ID to get all its upstream tributaries, by default None.
+        NHDPus V2 mainstem ID to get all its upstream tributaries, by default ``None``..
         The ID must be an integer.
     geometry_file : str, optional
-        Path to a geometry file, by default None. Supported file extensions are
+        Path to a geometry file, by default ``None``.. Supported file extensions are
         ``.feather``, ``.parquet``, and any format supported by
         ``geopandas.read_file`` (e.g., ``.shp``, ``.geojson``, and ``.gpkg``).
     nhdv2_flowlines : bool, optional
         Whether to retrieve the NHDPlus V2 flowlines within the AOI, by default False.
-    streamcat_attrs : list of str, optional
-        List of StreamCat attributes to retrieve, by default None. This will
+    streamcat_attrs : list, optional
+        StreamCat attributes to retrieve, by default ``None``.. This will
         set the ``nhdv2_flowlines`` to True. Use ``pynhd.StreamCat().metrics_df``
         to get a dataframe of all available attributes with their descriptions.
-    nldi_attrs : list of str, optional
-        List of slelect attributes to retrieve, by default None.
+    nldi_attrs : list, optional
+        List of slelect attributes to retrieve, by default ``None``..
         Use ``pynhd.nhdplus_attrs_s3()`` to get a dataframe of all available
         attributes with their descriptions.
     """
@@ -131,7 +122,7 @@ class AOI(BaseModel):
     nldi_attrs: list[str] | None = None
 
     @model_validator(mode="after")
-    def check_exclusive_options(self) -> Self:
+    def _check_exclusive_options(self) -> Self:
         """Check if only one of the options is provided."""
         provided_options = [
             option
@@ -168,8 +159,8 @@ class Forcing(BaseModel):
         Start date of the forcing data.
     end_date : datetime
         End date of the forcing data.
-    variables : list of str, optional
-        List of variables to retrieve, by default None. If not provided, all available
+    variables : list, optional
+        List of variables to retrieve, by default ``None``.. If not provided, all available
         variables will be retrieved.
     """
 
@@ -186,8 +177,8 @@ class Topo(BaseModel):
     ----------
     resolution_m : int
         Resolution of the data in meters.
-    derived_variables : list of str, optional
-        List of derived variables to calculate, by default None. Supported derived
+    derived_variables : list, optional
+        List of derived variables to calculate, by default ``None``.. Supported derived
         variables are "slope", "aspect", and "curvature".
     """
 
@@ -202,7 +193,7 @@ class Soil(BaseModel):
     ----------
     source : str
         Source of the soil data. Supported sources are "soilgrids" and "gnatsgo".
-    variables : list of str
+    variables : list
         List of variables to retrieve. Each source has its own set of variables.
     """
 
@@ -215,19 +206,19 @@ class NLCD(BaseModel):
 
     Parameters
     ----------
-    cover : list of int, optional
-        List of years for land cover data, by default None, which defaults to
+    cover : list, optional
+        List of years for land cover data, by default ``None``., which defaults to
         the most recent data. Available years are 2021, 2019, 2016, 2013, 2011,
         2008, 2006, 2004, and 2001.
-    impervious : list of int, optional
-        List of years for impervious data, by default None, which defaults to
+    impervious : list, optional
+        List of years for impervious data, by default ``None``., which defaults to
         the most recent data. Available years are 2021, 2019, 2016, 2013, 2011,
         2008, 2006, 2004, and 2001.
-    canopy : list of int, optional
-        List of years for canopy data, by default None, which defaults to
+    canopy : list, optional
+        List of years for canopy data, by default ``None``., which defaults to
         the most recent data. Available years are between 2011 and 2022.
-    descriptor : list of int, optional
-        List of years for descriptor data, by default None, which defaults to
+    descriptor : list, optional
+        List of years for descriptor data, by default ``None``., which defaults to
         the most recent data. Available years are 2021, 2019, 2016, 2013, 2011,
         2008, 2006, 2004, and 2001.
     """
@@ -269,7 +260,7 @@ class Streamflow(BaseModel):
     frequency: Literal["daily", "instantaneous"]
 
     @model_validator(mode="after")
-    def check_exclusive_options(self) -> Self:
+    def _check_exclusive_options(self) -> Self:
         """Check if the frequency is either 'daily' or 'instantaneous'."""
         if self.frequency not in ("daily", "instantaneous"):
             raise ValueError("Frequency must be either 'daily' or 'instantaneous'.")
@@ -305,17 +296,17 @@ class Config(BaseModel):
     aoi : AOI
         Area of interest.
     forcing : Forcing, optional
-        Forcing data, by default None.
+        Forcing data, by default ``None``..
     topo : Topo, optional
-        Topographic data, by default None.
+        Topographic data, by default ``None``..
     soil : Soil, optional
-        Soil data, by default None.
+        Soil data, by default ``None``..
     nlcd : NLCD, optional
-        National Land Cover Database (NLCD) data, by default None.
+        National Land Cover Database (NLCD) data, by default ``None``..
     nid : NID, optional
-        National Inventory of Dams (NID) data, by default None.
+        National Inventory of Dams (NID) data, by default ``None``..
     streamflow : Streamflow, optional
-        Streamflow data from NWIS, by default None.
+        Streamflow data from NWIS, by default ``None``..
     """
 
     project: Project
@@ -394,4 +385,4 @@ def write_config(config: Config, file_path: str | Path) -> None:
     file_path : str or pathlib.Path
         Path to the configuration file.
     """
-    Path(file_path).write_text(yaml_dump(config.model_dump()))
+    Path(file_path).write_text(_yaml_dump(config.model_dump()))
