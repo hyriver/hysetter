@@ -9,7 +9,7 @@ import hysetter as hs
 from hysetter.cli import cli
 
 
-@pytest.fixture()
+@pytest.fixture
 def runner():
     """Return a CliRunner."""
     return CliRunner()
