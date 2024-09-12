@@ -106,7 +106,13 @@ ENV/
 .idea/
 
 # logs
-.nvimlog
-data/
-tags*
 cache
+.pixi
+.DS_Store
+.copilot-instructions.md
+junit.xml
+.coverage# pixi environments
+.pixi
+*.egg-info
+.copilot-instructions.md
+data
