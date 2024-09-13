@@ -60,12 +60,10 @@ dependencies = [
 ]
 optional-dependencies.dev = [
   "exactextract>=0.2,<0.3",
-  "h5netcdf>=1.3,<2",
   "ipykernel",
   "ipywidgets",
   "joblib>=1.4.2,<2",
   "mapclassify",
-  "matplotlib",
   "psutil>=6,<7",
   "torch",
   "tqdm>=4.66.5,<5",
@@ -217,7 +215,7 @@ lint.isort.required-imports = [
 lint.pydocstyle.convention = "numpy"
 
 [tool.codespell]
-skip = "__pycache__,_build,.mypy_cache,.git,./htmlcov,.nox"
+skip = "__pycache__,_build,.mypy_cache,.git,./htmlcov,.pixi,pixi.lock,**.ipynb"
 ignore-words-list = "gage,gages"
 
 [tool.pytest.ini_options]
