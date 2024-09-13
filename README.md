@@ -9,7 +9,7 @@
 [![Security Status](https://img.shields.io/badge/security-bandit-green.svg)](https://github.com/PyCQA/bandit)
 [![CodeFactor](https://www.codefactor.io/repository/github/hyriver/hysetter/badge)](https://www.codefactor.io/repository/github/hyriver/hysetter)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/hyriver/hysetter/HEAD?labpath=docs%2Fexamples)
 
 ## Features
 
@@ -41,6 +41,8 @@ United States (CONUS):
 - **Dam**: From [NID](https://nid.sec.usace.army.mil)
 - **Land Use/Land Cover, Canopy, Imperviousness, and Urban
     Descriptor**: From [MRLC](https://www.mrlc.gov/)
+
+Try HySetter in your browser by clicking on the Binder badge above.
 
 ## Installation
 
