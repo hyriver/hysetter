@@ -7,10 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.0] - 2024-09-10
+## [0.2.0] - 2024-09-13
+
+Starting from this release, HySetter has a [website](https://hysetter.readthedocs.io)!
 
 ### Added
 
+- Add two options for getting streamflow data, allowing to use a column from the
+  AOI's GeoDataFrame as USGS station IDs.
+- Add a new example notebook to demonstrate using HySetter for hydrological modeling.
 - Add two new AOI sources: `mainstem_main` and `mainstem_tributaries`.
   The `mainstem_main` source gets the catchments of the main flowlines belonging
   to the given mainstem ID, whereas the `mainstem_tributaries` source gets the
