@@ -6899,9 +6899,9 @@ packages:
   requires_python: '>=3.8'
 - kind: pypi
   name: hysetter
-  version: 0.1.2.dev30+g4565dbe.d20240913
+  version: 0.1.2.dev37+g77a91fc.d20240913
   path: .
-  sha256: ad8605b3dfe55fe6d392bae359b5d3d35b2cd0fa7f3b7b48e3fc800aeb570a09
+  sha256: edb13bced283b25039b546bdf82e810fb695d2895b12a122a249ef185edae1be
   requires_dist:
   - boto3
   - dask[dataframe]
