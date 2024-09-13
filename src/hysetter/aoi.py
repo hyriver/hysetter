@@ -164,6 +164,7 @@ def get_aoi(cfg_aoi: AOI, flw_dir: Path, aoi_parquet: Path) -> None:
     aoi_parquet : pathlib.Path
         The path to the AOI parquet file.
     """
+    import pygeoutils as geoutils
     from pynhd import WaterData
 
     console = Console()
@@ -179,9 +180,11 @@ def get_aoi(cfg_aoi: AOI, flw_dir: Path, aoi_parquet: Path) -> None:
         elif cfg_aoi.nhdv2_ids:
             console.print("Getting AOI: NHDPlusV2 catchments from WaterData.")
             gdf = WaterData("catchmentsp").byid("featureid", cfg_aoi.nhdv2_ids)
+            gdf = geoutils.multi2poly(gdf)
         elif cfg_aoi.gagesii_basins:
             console.print("Getting AOI: GAGES-II basins from WaterData.")
             gdf = WaterData("gagesii_basins").byid("gage_id", cfg_aoi.gagesii_basins)
+            gdf = geoutils.multi2poly(gdf)
         elif cfg_aoi.mainstem_main:
             console.print("Getting AOI: Mainstem catchments (main only) from GeoConnex.")
             try:

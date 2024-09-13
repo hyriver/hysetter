@@ -253,17 +253,28 @@ class Streamflow(BaseModel):
     frequency : str
         Frequency of the streamflow data. Supported frequencies are
         "daily" and "instantaneous".
+    within_aoi : bool, optional
+        Whether to retrieve the streamflow data for USGS stations that
+        are within the AOI, by default True.
+    use_col : str, optional
+        Instead of getting data for all stations within the AOI, get data
+        for a column in the AOI dataframe that contains the USGS station
+        IDs, by default None.
     """
 
     start_date: datetime
     end_date: datetime
     frequency: Literal["daily", "instantaneous"]
+    within_aoi: bool = True
+    use_col: str | None = None
 
     @model_validator(mode="after")
     def _check_exclusive_options(self) -> Self:
         """Check if the frequency is either 'daily' or 'instantaneous'."""
         if self.frequency not in ("daily", "instantaneous"):
             raise ValueError("Frequency must be either 'daily' or 'instantaneous'.")
+        if self.use_col:
+            self.within_aoi = False
         return self
 
 
