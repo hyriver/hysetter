@@ -86,9 +86,9 @@ optional-dependencies.test = [
   "pytest-cov",
   "pytest-sugar",
 ]
-urls.Changelog = "https://docs.hyriver.io/changelogs/hysetter.html"
+urls.Changelog = "https://hysetter.readthedocs.io/latest/CHANGELOG"
 urls.CI = "https://github.com/hyriver/hysetter/actions"
-urls.Homepage = "https://docs.hyriver.io/readme/hysetter.html"
+urls.Homepage = "https://hysetter.readthedocs.io"
 urls.Issues = "https://github.com/hyriver/hysetter/issues"
 scripts.hysetter = "hysetter.cli:cli"
 
