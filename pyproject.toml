@@ -9,7 +9,7 @@ requires = [
 [project]
 name = "hysetter"
 description = "Subset hydroclimate data using HyRiver Over CONUS."
-readme = "README.rst"
+readme = "README.md"
 license = { text = "MIT" }
 authors = [
   { name = "Taher Chegini", email = "cheginit@gmail.com" },
@@ -42,14 +42,14 @@ dependencies = [
   "numbagg",
   "pandas",
   "planetary-computer",
-  "py3dep>=0.16.3",
+  "py3dep<0.18,>=0.17",
   "pyarrow>=1.0.1",
   "pydantic>=2.7.1",
-  "pydaymet>=0.16.3",
-  "pygeohydro>=0.16.4",
-  "pygridmet>=0.16",
-  "pynhd>=0.16.3",
-  "pynldas2>=0.16",
+  "pydaymet<0.18,>=0.17",
+  "pygeohydro<0.18,>=0.17",
+  "pygridmet<0.18,>=0.17",
+  "pynhd<0.18,>=0.17",
+  "pynldas2<0.18,>=0.17",
   "pyogrio",
   "pystac-client",
   "pyyaml",
@@ -58,10 +58,35 @@ dependencies = [
   "xarray>=2024.5",
   "xarray-spatial",
 ]
+optional-dependencies.dev = [
+  "exactextract>=0.2,<0.3",
+  "h5netcdf>=1.3,<2",
+  "ipykernel",
+  "ipywidgets",
+  "joblib>=1.4.2,<2",
+  "mapclassify",
+  "matplotlib",
+  "psutil>=6,<7",
+  "torch",
+  "tqdm>=4.66.5,<5",
+]
+optional-dependencies.docs = [
+  "black",
+  "mdx-truly-sane-lists>=1.3",
+  "mkdocs>=1.5.3",
+  "mkdocs-jupyter",
+  "mkdocs-material>=9.5.20",
+  "mkdocstrings-python",
+]
+optional-dependencies.lint = [
+  "codespell",
+  "pre-commit",
+  "tomli",
+]
 optional-dependencies.test = [
+  "coverage[toml]",
   "pytest-cov",
   "pytest-sugar",
-  "pytest-xdist[psutil]",
 ]
 urls.Changelog = "https://docs.hyriver.io/changelogs/hysetter.html"
 urls.CI = "https://github.com/hyriver/hysetter/actions"
@@ -82,7 +107,7 @@ target-version = "py310"
 line-length = 100
 
 exclude = [
-  ".nox",
+  ".pixi",
   "__pycache__",
 ]
 
@@ -196,17 +221,8 @@ skip = "__pycache__,_build,.mypy_cache,.git,./htmlcov,.nox"
 ignore-words-list = "gage,gages"
 
 [tool.pytest.ini_options]
-addopts = "--ignore=noxfile.py --doctest-modules -n=auto -v --durations=5"
+addopts = "-v --cov --junitxml=junit.xml --durations=5"
 doctest_optionflags = 'NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL NUMBER'
-filterwarnings = [
-  "ignore:.*distutils.*",
-  "ignore:.*--rsyncdir command line argument.*",
-  "ignore:.*numpy.ndarray size changed.*",
-  "ignore:.*'cgi' is deprecated.*",
-  "ignore:.*Ensure you extract a single element.*",
-  "ignore:.*Shapely GEOS version.*",
-  "ignore:.*Deprecated in Pydantic V2.0.*",
-]
 testpaths = [
   "tests",
 ]
@@ -234,7 +250,7 @@ source = [
 
 [tool.pyright]
 exclude = [
-  ".nox/",
+  ".pixi/",
   "**/__pycache__",
   "**/__init__.py",
   "tests/",
@@ -259,3 +275,52 @@ formatter = "ufmt"
 [tool.refurb]
 python_version = "3.10"
 quiet = true
+
+[tool.pixi.feature.docs.tasks]
+build-docs = "mkdocs build --strict"
+docs = "mkdocs serve"
+
+[tool.pixi.project]
+channels = [ "conda-forge" ]
+platforms = [ "linux-64", "osx-64", "osx-arm64", "win-64" ]
+
+[tool.pixi.pypi-dependencies]
+hysetter = { path = ".", editable = true }
+
+[tool.pixi.feature.lint.dependencies]
+pre-commit = "*"
+
+[tool.pixi.dependencies]
+hdf5 = "*"
+netcdf4 = "*"
+numba = "*"
+
+[tool.pixi.feature.typecheck.dependencies]
+pyright = "*"
+
+[tool.pixi.feature.py310.dependencies]
+python = "~=3.10.0"
+
+[tool.pixi.feature.py312.dependencies]
+python = "~=3.12.0"
+
+[tool.pixi.environments]
+test310 = { features = [ "test", "py310" ] }
+test312 = { features = [ "test", "py312" ] }
+lint = { features = [ "lint", "py312" ], no-default-feature = true }
+typecheck = { features = [ "typecheck", "py312" ] }
+dev = { features = [ "dev", "test", "py312" ] }
+docs = { features = [ "docs", "py312" ], no-default-feature = true }
+
+[tool.pixi.feature.test.tasks]
+test = "pytest"
+report = { cmd = [ "coverage", "report" ], depends-on = [ "test" ] }
+html = { cmd = [ "coverage", "html" ], depends-on = [ "test", "report" ] }
+
+[tool.pixi.feature.lint.tasks]
+lint = "pre-commit run --all-files"
+pcupdate = "pre-commit autoupdate"
+spell = "codespell -w"
+
+[tool.pixi.feature.typecheck.tasks]
+typecheck = "pyright"
