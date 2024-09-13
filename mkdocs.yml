@@ -91,6 +91,9 @@ markdown_extensions:
     toc_depth: 3
     permalink: '#'
 - mdx_truly_sane_lists
+- pymdownx.arithmatex:
+    generic: true
+- pymdownx.betterem
 
 extra:
   homepage: https://docs.hyriver.io/
@@ -104,8 +107,7 @@ nav:
 - Getting Started: index.md
 - Examples:
   - Overview: examples/index.md
-  - Delineate Basins: examples/basin.ipynb
-  - Topographic Wetness Index (TWI): examples/twi.ipynb
+  - Hydrologic Modeling: examples/hymod.ipynb
 - config.md
 - API Reference: reference.md
 - Release Notes: CHANGELOG.md
@@ -113,7 +115,7 @@ nav:
 plugins:
 - search
 - mkdocs-jupyter:
-    include: ['*.ipynb']
+    include: [examples/hymod.ipynb]
     include_source: true
 - mkdocstrings:
     default_handler: python
@@ -139,3 +141,5 @@ hooks:
 
 extra_css:
 - stylesheets/extra.css
+- javascripts/mathjax.js
+- https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
