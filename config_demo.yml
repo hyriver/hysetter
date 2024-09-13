@@ -33,7 +33,7 @@ aoi:
   # A list of valid NLDI attributes to get for flowlines within AOI.
   # You can use `pynhd.nhdplus_attrs_s3()` to get a dataframe of the attrs'
   # names and descriptions
-  nldi_attrs: [CAT_BFI, CAT_PET]
+  # nldi_attrs: [CAT_BFI, CAT_PET]
 forcing:
   # Could be `daymet`, `gridmet`, or `nldas2`
   source: daymet
@@ -72,3 +72,12 @@ streamflow:
   end_date: 2000-01-02
   # Options are `daily` or `instantaneous`
   frequency: daily
+  # Whether to get streamflow for all stations within the AOIs
+  # or only for the IDs given in `use_col` . Note that
+  # if `use_col` is given, this option is ignored. So, only
+  # one of these `within_aoi` or `use_col` should be used.
+  within_aoi: false
+  # Get stations for IDs in the obtained AOI's GeoDataFrame.
+  # For example, when `gagesii_basins` is used, the station
+  # IDs are given in the `gage_id` column
+  use_col: gage_id
