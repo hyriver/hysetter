@@ -115,7 +115,7 @@ to the project, there are six steps that you need to follow:
 
 1. Add tests for your changes either in `tests/test_hysetter.py` file or
   create a new file in the `tests` directory with the name `test_<module_name>.py`.
-2. Run `pixi r -e test39` and `pixi r -e test312` to run the tests.
+2. Run `pixi r -e test310` and `pixi r -e test312` to run the tests.
 3. Run `pixi lint` for auto-formatting and to check any linting errors.
 4. Run `pixi r typecheck` to check for type errors.
 5. Document your changes in the `CHANGELOG.md` file. Please make sure to
