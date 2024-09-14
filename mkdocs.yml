@@ -1,39 +1,41 @@
 site_name: HySetter
-site_url: https://hysetter.readthedocs.io
+site_url: https://cheginit.github.io/hysetter
+site_author: Taher Chegini
+site_description: Subset hydroclimate data using HyRiver across US
+
+repo_name: hyriver/hysetter
+repo_url: https://github.com/hyriver/hysetter/
+edit_uri: edit/main/docs/
+
+copyright: Copyright &copy; 2024 Taher Chegini
 
 theme:
   name: material
   custom_dir: docs/overrides
   favicon: assets/hyriver_logo.png
   logo: assets/hyriver_logo.png
-  site_url: https://hysetter.readthedocs.io
   font:
     text: Red Hat Text
     code: JetBrains Mono
 
   palette:
-    # Palette toggle for automatic mode
   - media: (prefers-color-scheme)
     toggle:
-      icon: material/brightness-auto
+      icon: material/link
       name: Switch to light mode
-
-    # Palette toggle for light mode
   - media: '(prefers-color-scheme: light)'
     scheme: default
-    primary: deep purple
-    accent: deep purple
+    primary: indigo
+    accent: indigo
     toggle:
-      icon: material/brightness-7
+      icon: material/toggle-switch
       name: Switch to dark mode
-
-    # Palette toggle for dark mode
   - media: '(prefers-color-scheme: dark)'
     scheme: slate
-    primary: deep purple
-    accent: deep purple
+    primary: black
+    accent: indigo
     toggle:
-      icon: material/brightness-4
+      icon: material/toggle-switch-off
       name: Switch to system preference
 
   icon:
@@ -45,6 +47,7 @@ theme:
   - content.code.copy
   - content.action.edit
   - content.code.annotate
+  - content.tooltips
   - navigation.sections
   - navigation.expand
   - navigation.collapse
@@ -57,20 +60,21 @@ theme:
   - navigation.tabs
   - navigation.tabs.sticky
   - navigation.path
+  - search.share
   - search.suggest
   - search.highlight
   - toc.follow
   - toc.integrate
 
-repo_url: https://github.com/hyriver/hysetter/
-edit_uri: edit/main/docs/
-
 markdown_extensions:
-- attr_list
-- md_in_html
+- abbr
 - admonition
+- attr_list
 - def_list
 - footnotes
+- md_in_html
+- toc:
+    permalink: true
 - pymdownx.tasklist:
     custom_checkbox: true
 - pymdownx.highlight:
@@ -85,8 +89,14 @@ markdown_extensions:
     custom_fences:
     - name: mermaid
       class: mermaid
+      format: pymdownx.superfences.fence_code_format
 - pymdownx.tabbed:
     alternate_style: true
+    combine_header_slug: true
+    slugify:
+      __class__: pymdownx.slugs.slugify
+      kwds:
+        case: lower
 - toc:
     toc_depth: 3
     permalink: '#'
@@ -94,6 +104,11 @@ markdown_extensions:
 - pymdownx.arithmatex:
     generic: true
 - pymdownx.betterem
+- pymdownx.magiclink:
+    normalize_issue_symbols: true
+    repo_url_shorthand: true
+    user: hyriver
+    repo: hysetter
 
 extra:
   homepage: https://docs.hyriver.io/
@@ -113,7 +128,10 @@ nav:
 - Release Notes: CHANGELOG.md
 - Contributing: CONTRIBUTING.md
 plugins:
-- search
+- search:
+    separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+- minify:
+    minify_html: true
 - mkdocs-jupyter:
     include: [examples/hymod.ipynb]
     include_source: true
@@ -123,6 +141,7 @@ plugins:
       python:
         import:
         - https://docs.python.org/3/objects.inv
+        - https://docs.pydantic.dev/latest/objects.inv
         paths: [src]
         options:
           docstring_style: numpy
