@@ -111,8 +111,8 @@ cache
 .DS_Store
 .copilot-instructions.md
 junit.xml
-.coverage# pixi environments
-.pixi
+.coverage
+pixi.lock
 *.egg-info
 .copilot-instructions.md
 data
