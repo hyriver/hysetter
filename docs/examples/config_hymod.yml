@@ -9,8 +9,8 @@ forcing:
   end_date: 2019-12-31
   variables: [pr, pet]
 soil:
-  source: soilgrids
-  variables: [bdod_5, bdod_15, bdod_30, bdod_60, bdod_100, bdod_200]
+  source: polaris
+  variables: [bd_5, bd_15, bd_30, bd_60, bd_100, bd_200]
 streamflow:
   start_date: 2000-01-01
   end_date: 2019-12-31
