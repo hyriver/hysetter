@@ -7,6 +7,10 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added
+
+### Changed
+
 ## [0.3.0] - 2025-02-11
 
 This release many new features and improvements and culmination of several months of
@@ -33,8 +37,8 @@ development. The most notable changes are listed below.
 
 ### Changed
 
-- A major refactoring of the code base to improve the maintainability and readability of
-    the code.
+- A major refactoring of the code base to improve the performance by avoiding
+    unnecessary web service calls and package imports.
 
 ## [0.2.0] - 2024-09-13
 
