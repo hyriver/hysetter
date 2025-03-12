@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 import geopandas as gpd
@@ -10,9 +9,13 @@ from rich.console import Console
 from rich.progress import track
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
+    from pyproj import CRS
+    from shapely import Polygon
     from xarray import DataArray
 
-    from .hysetter import Topo
+    from hysetter.hysetter import Config, Topo
 
 __all__ = ["get_topo"]
 
@@ -45,46 +48,59 @@ def _curvature(dem: DataArray) -> DataArray:
     return curvature(dem)
 
 
-def get_topo(cfg_topo: Topo, topo_dir: Path, aoi_parquet: Path) -> None:
-    """Get topo data for the area of interest.
+def _read_tiffs(tiff_files: list[Path], poly: Polygon, crs: CRS) -> DataArray:
+    """Convert a list of tiff files to a vrt file and return a xarray.DataArray."""
+    from seamless_3dep import tiffs_to_da
 
-    Parameters
-    ----------
-    cfg_topo : Topo
-        A Topo object.
-    topo_dir : Path
-        Path to the directory where the topo data will be saved.
-    aoi_parquet : Path
-        The path to the AOI parquet file.
-    """
+    topo = tiffs_to_da(tiff_files, poly, crs)
+    topo.name = "elevation"
+    return topo
+
+
+def get_topo(data_cfg: Topo, model_cfg: Config) -> None:
+    """Get topo data for the area of interest."""
     import xarray as xr
-    from py3dep import get_dem
+    from seamless_3dep import get_map
+    from shapely import box
 
-    console = Console()
+    console = Console(force_jupyter=False)
 
     topo_functions = {"slope": _slope, "aspect": _aspect, "curvature": _curvature}
 
-    gdf = gpd.read_parquet(aoi_parquet)
-    topo_dir.mkdir(exist_ok=True, parents=True)
+    gdf = gpd.read_parquet(model_cfg.file_paths.aoi_parquet)
+    topo_paths = model_cfg.file_paths.topo
+    topo_paths.mkdir()
+    if data_cfg.geometry_buffer > 0:
+        buffer = data_cfg.geometry_buffer
+    else:
+        buffer = 10 * data_cfg.resolution_m
+    join_style = "round"
+    if not data_cfg.crop:
+        gdf["geometry"] = box(*gdf.geometry.bounds.to_numpy().T)
+        join_style = "mitre"
+    gdf = gdf.to_crs(5070).buffer(buffer, join_style=join_style).to_crs(4326)
     for i, geom in track(
-        enumerate(gdf.geometry), description="Getting DEM from 3DEP", total=len(gdf)
+        enumerate(gdf.geometry),
+        description="Getting DEM from 3DEP",
+        total=len(gdf),
+        console=console,
     ):
-        fpath = Path(topo_dir, f"topo_geom_{i}.nc")
-        if fpath.exists():
+        topo_paths[i] = f"topo_geom_{i}.nc"
+        if topo_paths[i].exists():
             continue
         try:
-            topo = get_dem(geom, cfg_topo.resolution_m, gdf.crs).rio.reproject(5070)
-            topo = topo.where(topo.notnull(), drop=True).rio.write_transform()
+            tiff_files = get_map("DEM", geom.bounds, topo_paths.parent, data_cfg.resolution_m)
+            topo = _read_tiffs(tiff_files, geom, gdf.crs)  # pyright: ignore[reportArgumentType]
         except Exception:
             console.print_exception(show_locals=True, max_frames=4)
             console.print(f"Failed to get topo data for AOI index {i}")
             continue
-        if cfg_topo.derived_variables:
+        if data_cfg.derived_variables:
             topo.attrs["res"] = topo.rio.resolution()
             topo_list = [
                 topo_functions[var](topo)
-                for var in cfg_topo.derived_variables
+                for var in data_cfg.derived_variables
                 if var in topo_functions
             ]
             topo = xr.merge([topo, *topo_list])
-        topo.to_netcdf(fpath)
+        topo.to_netcdf(topo_paths[i])

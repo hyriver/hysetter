@@ -11,10 +11,10 @@ import pandas as pd
 from rich.console import Console
 from rich.progress import track
 
-from .exceptions import InputTypeError
+from hysetter.exceptions import InputTypeError
 
 if TYPE_CHECKING:
-    from .hysetter import AOI
+    from hysetter.hysetter import AOI, Config, FileList
 
 __all__ = ["get_aoi"]
 
@@ -37,16 +37,17 @@ def _get_hucs(huc_ids: list[str]) -> gpd.GeoDataFrame:
 def _get_mainstem(
     mainstem_id: int,
     navigation: Literal["upstreamMain", "upstreamTributaries"],
-    project_dir: Path,
     get_flw: bool,
-    nldi_attrs: list[str] | None,
+    flw_dir: FileList,
     sc_attrs: list[str] | None,
+    sc_dir: FileList,
+    nldi_attrs: list[str] | None,
+    nldi_dir: FileList,
 ) -> gpd.GeoDataFrame:
     """Get NHDPlus V2 catchments for ComIDs of a mainstem."""
     import pygeoutils as pgu
     from pynhd import NLDI, GeoConnex, WaterData, streamcat
 
-    project_dir.mkdir(exist_ok=True, parents=True)
     outlet_id = (
         GeoConnex("mainstems")
         .byid("id", str(mainstem_id))
@@ -60,23 +61,24 @@ def _get_mainstem(
     ).nhdplus_comid.tolist()
     if get_flw:
         wd = WaterData("nhdflowline_network")
-        fpath = Path(project_dir, "flowlines.parquet")
-        if not fpath.exists():
+        flw_dir.mkdir()
+        flw_dir[0] = "flowlines.parquet"
+        if not flw_dir[0].exists():
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", UserWarning)
                 flw = wd.byid("comid", comids)
-                flw.to_parquet(fpath)
+                flw.to_parquet(flw_dir[0])
     if sc_attrs:
-        fpath = Path(project_dir, "streamcat_attrs.parquet")
-        if not fpath.exists():
-            streamcat(sc_attrs, "catchment", comids).to_parquet(fpath)
+        sc_dir.mkdir()
+        sc_dir[0] = "streamcat_attrs.parquet"
+        if not sc_dir[0].exists():
+            streamcat(sc_attrs, "cat", comids).to_parquet(sc_dir[0])
 
     if nldi_attrs:
-        fpath = Path(project_dir, "nldi_attrs.parquet")
-        if not fpath.exists():
-            nldi.getcharacteristic_byid(
-                comids, "local", "comid", nldi_attrs, values_only=True
-            ).to_parquet(fpath)
+        nldi_dir.mkdir()
+        nldi_dir[0] = "nldi_attrs.parquet"
+        if not nldi_dir[0].exists():
+            nldi.get_characteristics(nldi_attrs, comids).to_parquet(nldi_dir[0])
 
     wd = WaterData("catchmentsp")
     with warnings.catch_warnings():
@@ -103,126 +105,141 @@ def _read_geometry_file(geometry_file: str) -> gpd.GeoDataFrame:
 
 def _get_flowlines(
     gdf: gpd.GeoDataFrame,
-    flowlines_dir: Path,
+    flw_dir: FileList,
     sc_attrs: list[str] | None,
+    sc_dir: FileList,
     nldi_attrs: list[str] | None,
+    nldi_dir: FileList,
 ) -> None:
     """Get flowlines."""
     from pynhd import NLDI, WaterData, streamcat
 
-    console = Console()
-    wd = WaterData("nhdflowline_network")
+    console = Console(force_jupyter=False)
+    # To avoid instantiating WaterData if data already exists
+    # we set it to None here and instantiate it later
+    # in the loop if needed
+    wd = None
 
     if sc_attrs or nldi_attrs:
         description = "Getting flowlines and their attributes"
     else:
         description = "Getting flowlines from WaterData"
 
-    nldi = NLDI() if nldi_attrs else None
     for i, geom in track(
         enumerate(gdf.geometry),
         description=description,
         total=len(gdf),
+        console=console,
     ):
-        fpath = Path(flowlines_dir, f"aoi_geom_{i}.parquet")
-        if not fpath.exists():
+        # Only instantiate WaterData if not already done
+        if wd is None:
+            wd = WaterData("nhdflowline_network")
+        flw_dir[i] = f"aoi_geom_{i}.parquet"
+        if not flw_dir[i].exists():
+            flw_dir.mkdir()
             try:
-                wd.bygeom(geom, gdf.crs).to_parquet(fpath)
+                wd.bygeom(geom, gdf.crs).to_parquet(flw_dir[i])  # pyright: ignore[reportArgumentType]
             except Exception:
                 console.print_exception(show_locals=True, max_frames=4)
                 console.print(f"Failed to get flowlines for AOI {i}.")
 
-        comids = gpd.read_parquet(fpath).comid.tolist()
-        fpath = Path(flowlines_dir, f"streamcat_geom_{i}.parquet")
-        if sc_attrs and not fpath.exists():
-            try:
-                streamcat(sc_attrs, "catchment", comids).to_parquet(fpath)
-            except Exception:
-                console.print_exception(show_locals=True, max_frames=4)
-                console.print(f"Failed to get StreamCat for AOI {i}.")
+        if sc_attrs:
+            sc_dir[i] = f"streamcat_geom_{i}.parquet"
+            if not sc_dir[i].exists():
+                sc_dir.mkdir()
+                comids = gpd.read_parquet(flw_dir[i]).comid.tolist()
+                try:
+                    streamcat(sc_attrs, "cat", comids).to_parquet(sc_dir[i])
+                except Exception:
+                    console.print_exception(show_locals=True, max_frames=4)
+                    console.print(f"Failed to get StreamCat for AOI {i}.")
 
-        fpath = Path(flowlines_dir, f"nldi_geom_{i}.parquet")
-        if nldi_attrs and nldi and not fpath.exists():
-            try:
-                nldi.getcharacteristic_byid(
-                    comids, "local", "comid", nldi_attrs, values_only=True
-                ).to_parquet(fpath)
-            except Exception:
-                console.print_exception(show_locals=True, max_frames=4)
-                console.print(f"Failed to get NLDI attrs for AOI {i}.")
+        if nldi_attrs:
+            nldi_dir[i] = f"nldi_geom_{i}.parquet"
+            if not nldi_dir[i].exists():
+                nldi_dir.mkdir()
+                try:
+                    nldi = NLDI()
+                    comids = gpd.read_parquet(flw_dir[i]).comid.tolist()
+                    nldi.get_characteristics(nldi_attrs, comids).to_parquet(nldi_dir[i])
+                except Exception:
+                    console.print_exception(show_locals=True, max_frames=4)
+                    console.print(f"Failed to get NLDI attrs for AOI {i}.")
 
 
-def get_aoi(cfg_aoi: AOI, flw_dir: Path, aoi_parquet: Path) -> None:
-    """Get the area of interest.
-
-    Parameters
-    ----------
-    cfg_aoi : AOI
-        An AOI object.
-    flw_dir : pathlib.Path
-        Path to the directory where the flowlines will be saved.
-    aoi_parquet : pathlib.Path
-        The path to the AOI parquet file.
-    """
+def get_aoi(aoi_cfg: AOI, model_cfg: Config) -> None:
+    """Get the area of interest."""
     import pygeoutils as geoutils
     from pynhd import WaterData
 
-    console = Console()
+    console = Console(force_jupyter=False)
 
-    if aoi_parquet.exists():
-        console.print(f"Reading AOI from [bold green]{aoi_parquet.resolve()}")
-        gdf = gpd.read_parquet(aoi_parquet)
+    files = model_cfg.file_paths
+    if files.aoi_parquet.exists():
+        console.print(f"Reading AOI from [bold green]{files.aoi_parquet.resolve()}")
+        gdf = gpd.read_parquet(files.aoi_parquet)
     else:
         gdf = None
-        if cfg_aoi.huc_ids:
+        if aoi_cfg.huc_ids:
             console.print("Getting AOI: HUCs from WaterData.")
-            gdf = _get_hucs(cfg_aoi.huc_ids)
-        elif cfg_aoi.nhdv2_ids:
+            gdf = _get_hucs(aoi_cfg.huc_ids)
+        elif aoi_cfg.nhdv2_ids:
             console.print("Getting AOI: NHDPlusV2 catchments from WaterData.")
-            gdf = WaterData("catchmentsp").byid("featureid", cfg_aoi.nhdv2_ids)
+            gdf = WaterData("catchmentsp").byid("featureid", aoi_cfg.nhdv2_ids)
             gdf = geoutils.multi2poly(gdf)
-        elif cfg_aoi.gagesii_basins:
+        elif aoi_cfg.gagesii_basins:
             console.print("Getting AOI: GAGES-II basins from WaterData.")
-            gdf = WaterData("gagesii_basins").byid("gage_id", cfg_aoi.gagesii_basins)
+            gdf = WaterData("gagesii_basins").byid("gage_id", aoi_cfg.gagesii_basins)
             gdf = geoutils.multi2poly(gdf)
-        elif cfg_aoi.mainstem_main:
+        elif aoi_cfg.mainstem_main:
             console.print("Getting AOI: Mainstem catchments (main only) from GeoConnex.")
             try:
                 gdf = _get_mainstem(
-                    cfg_aoi.mainstem_main,
+                    aoi_cfg.mainstem_main,
                     "upstreamMain",
-                    flw_dir.parent,
-                    cfg_aoi.nhdv2_flowlines,
-                    cfg_aoi.nldi_attrs,
-                    cfg_aoi.streamcat_attrs,
+                    aoi_cfg.nhdv2_flowlines,
+                    files.flowlines,
+                    aoi_cfg.nldi_attrs,
+                    files.nldi_attrs,
+                    aoi_cfg.streamcat_attrs,
+                    files.streamcat_attrs,
                 )
             except Exception:
                 console.print_exception(show_locals=True, max_frames=4)
-                console.print(f"Failed to get data for {cfg_aoi.mainstem_main}.")
+                console.print(f"Failed to get data for {aoi_cfg.mainstem_main}.")
             return
-        elif cfg_aoi.mainstem_tributaries:
+        elif aoi_cfg.mainstem_tributaries:
             console.print("Getting AOI: Mainstem catchments (tributaries) from GeoConnex.")
             try:
                 gdf = _get_mainstem(
-                    cfg_aoi.mainstem_tributaries,
+                    aoi_cfg.mainstem_tributaries,
                     "upstreamTributaries",
-                    flw_dir.parent,
-                    cfg_aoi.nhdv2_flowlines,
-                    cfg_aoi.nldi_attrs,
-                    cfg_aoi.streamcat_attrs,
+                    aoi_cfg.nhdv2_flowlines,
+                    files.flowlines,
+                    aoi_cfg.nldi_attrs,
+                    files.nldi_attrs,
+                    aoi_cfg.streamcat_attrs,
+                    files.streamcat_attrs,
                 )
             except Exception:
                 console.print_exception(show_locals=True, max_frames=4)
-                console.print(f"Failed to get data for {cfg_aoi.mainstem_main}.")
+                console.print(f"Failed to get data for {aoi_cfg.mainstem_main}.")
             return
-        elif cfg_aoi.geometry_file:
-            console.print(f"Getting AOI: From {cfg_aoi.geometry_file}")
-            gdf = _read_geometry_file(cfg_aoi.geometry_file)
+        elif aoi_cfg.geometry_file:
+            console.print(f"Getting AOI: From {aoi_cfg.geometry_file}")
+            gdf = _read_geometry_file(aoi_cfg.geometry_file)
 
         if gdf is None:
             raise ValueError
-        gdf.to_parquet(aoi_parquet)
+        gdf.to_parquet(files.aoi_parquet)
 
-    if cfg_aoi.nhdv2_flowlines or cfg_aoi.streamcat_attrs or cfg_aoi.nldi_attrs:
-        flw_dir.mkdir(exist_ok=True, parents=True)
-        _get_flowlines(gdf, flw_dir, cfg_aoi.streamcat_attrs, cfg_aoi.nldi_attrs)
+    if aoi_cfg.nhdv2_flowlines or aoi_cfg.streamcat_attrs or aoi_cfg.nldi_attrs:
+        files.flowlines.mkdir(exist_ok=True, parents=True)
+        _get_flowlines(
+            gdf,
+            files.flowlines,
+            aoi_cfg.streamcat_attrs,
+            files.streamcat_attrs,
+            aoi_cfg.nldi_attrs,
+            files.nldi_attrs,
+        )

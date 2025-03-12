@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 import geopandas as gpd
@@ -10,60 +9,63 @@ from rich.console import Console
 from rich.progress import track
 
 if TYPE_CHECKING:
-    from .hysetter import Forcing
+    from hysetter.hysetter import Config, Forcing
 
 __all__ = ["get_forcing"]
 
 
-def get_forcing(cfg_forcing: Forcing, forcing_dir: Path, aoi_parquet: Path) -> None:
-    """Get forcing for the area of interest.
+def get_forcing(data_cfg: Forcing, model_cfg: Config) -> None:
+    """Get forcing for the area of interest."""
+    from shapely import box
 
-    Parameters
-    ----------
-    cfg_forcing : Forcing
-        A Forcing object.
-    forcing_dir : Path
-        Path to the directory where the forcing data will be saved.
-    aoi_parquet : Path
-        The path to the AOI parquet file.
-    """
-    console = Console()
-    if cfg_forcing.source == "daymet":
+    console = Console(force_jupyter=False)
+    if data_cfg.source == "daymet":
         import pydaymet as daymet
 
         get_clm = daymet.get_bygeom
-    elif cfg_forcing.source == "gridmet":
+    elif data_cfg.source == "gridmet":
         import pygridmet as gridmet
 
         get_clm = gridmet.get_bygeom
-    elif cfg_forcing.source == "nldas2":
+    elif data_cfg.source == "nldas2":
         import pynldas2 as nldas2
 
         get_clm = nldas2.get_bygeom
     else:
         raise ValueError("Unknown forcing source.")
 
-    gdf = gpd.read_parquet(aoi_parquet)
-    forcing_dir.mkdir(exist_ok=True, parents=True)
+    gdf = gpd.read_parquet(model_cfg.file_paths.aoi_parquet)
+    forcing_dir = model_cfg.file_paths.forcing
+    forcing_dir.mkdir()
     forcing_name = {
         "daymet": "Daymet",
         "gridmet": "GridMet",
         "nldas2": "NLDAS2",
-    }[cfg_forcing.source]
+    }[data_cfg.source]
+
+    join_style = "round"
+    if not data_cfg.crop:
+        gdf["geometry"] = box(*gdf.geometry.bounds.to_numpy().T)
+        join_style = "mitre"
+    if data_cfg.geometry_buffer > 0:
+        gdf = gdf.to_crs(5070).buffer(data_cfg.geometry_buffer, join_style=join_style)
     for i, geom in track(
-        enumerate(gdf.geometry), description=f"Getting forcing from {forcing_name}", total=len(gdf)
+        enumerate(gdf.geometry),
+        description=f"Getting forcing from {forcing_name}",
+        total=len(gdf),
+        console=console,
     ):
-        fpath = Path(forcing_dir, f"{cfg_forcing.source}_geom_{i}.nc")
-        if fpath.exists():
+        forcing_dir[i] = f"{data_cfg.source}_geom_{i}.nc"
+        if forcing_dir[i].exists():
             continue
         try:
             clm = get_clm(
-                geom,
-                (cfg_forcing.start_date, cfg_forcing.end_date),  # pyright: ignore[reportArgumentType]
-                gdf.crs,
-                cfg_forcing.variables,  # pyright: ignore[reportArgumentType]
+                geom,  # pyright: ignore[reportArgumentType]
+                (data_cfg.start_date, data_cfg.end_date),  # pyright: ignore[reportArgumentType]
+                gdf.crs,  # pyright: ignore[reportArgumentType]
+                data_cfg.variables,  # pyright: ignore[reportArgumentType]
             )
-            clm.to_netcdf(Path(forcing_dir, f"{cfg_forcing.source}_geom_{i}.nc"))
+            clm.to_netcdf(forcing_dir[i])
         except Exception:
             console.print_exception(show_locals=True, max_frames=4)
             console.print(f"Failed to get forcing for AOI index {i}.")
