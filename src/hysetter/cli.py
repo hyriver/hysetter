@@ -12,9 +12,9 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
-from . import hysetter as hs
+from hysetter import hysetter as hs
 
-console = Console()
+console = Console(force_jupyter=False)
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 
