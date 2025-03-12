@@ -11,7 +11,7 @@ aoi:
   # NHDPlusV2 catchment IDs (featureid)
   nhdv2_ids: []
   # GAGES-II basin IDs
-  gagesii_basins: ['01031500', '01031450']
+  gagesii_basins: ['02398863']
   # NHDPlusV2 catchments belonging to the main flowlines upstream of
   # the provided mainstem ID
   # mainstem_main: '323742'
@@ -41,6 +41,11 @@ forcing:
   end_date: 2000-01-02
   # Valid variable names depend on the source
   variables: [prcp, tmin]
+  # whether to crop the data to the geometry of the AOI, by default True
+  crop: false
+  # Buffer distance in meters to add to the geometry of the AOI before requesting
+  # the data, by default 0
+  geometry_buffer: 0
 topo:
   # Could be any positive integer. When using 10, 30, and 60
   # DEM data will be retrieved from 3DEP's static files, otherwise
@@ -49,12 +54,22 @@ topo:
   # Could be `slope`, `aspect`, and `curvature` which will be computed
   # using `xarray-spatial`
   derived_variables: [slope, aspect, curvature]
+  # whether to crop the data to the geometry of the AOI, by default True
+  crop: true
+  # Buffer distance in meters to add to the geometry of the AOI before requesting
+  # the data, by default 0
+  geometry_buffer: 0
 soil:
   # Could be `soilgrids` or `gnatsgo` and variables depend on the service
   source: soilgrids
   variables: [bdod_5, cec_5]
   # source: gnatsgo
   # variables: [tk0_999a, aws0_999]
+  # whether to crop the data to the geometry of the AOI, by default True
+  crop: true
+  # Buffer distance in meters to add to the geometry of the AOI before requesting
+  # the data, by default 0
+  geometry_buffer: 0
 nlcd:
   # Options are 2021, 2019, 2016, 2013, 2011, 2008, 2006, 2004, 2001
   # But for canopy it's any year between 2011-2022 (inclusive)
@@ -62,6 +77,11 @@ nlcd:
   impervious: [2016]
   canopy: [2016]
   descriptor: [2016]
+  # whether to crop the data to the geometry of the AOI, by default True
+  crop: true
+  # Buffer distance in meters to add to the geometry of the AOI before requesting
+  # the data, by default 0
+  geometry_buffer: 0
 nid:
   # If True only returns dams within AOIs, otherwise
   # will store the full NID database
@@ -81,3 +101,13 @@ streamflow:
   # For example, when `gagesii_basins` is used, the station
   # IDs are given in the `gage_id` column
   use_col: gage_id
+remote_raster:
+  # Names will be sanitized: strip + lower + replace space with _
+  # since they are used as filenames, e.g., data_dir/twi/twi_geom_1.tif
+  twi: https://lynker-spatial.s3-us-west-2.amazonaws.com/gridded-resources/twi.vrt
+  # fdr: https://lynker-spatial.s3-us-west-2.amazonaws.com/gridded-resources/fdr.vrt
+  # whether to crop the data to the geometry of the AOI, by default True
+  crop: true
+  # Buffer distance in meters to add to the geometry of the AOI before requesting
+  # the data, by default 0
+  geometry_buffer: 0
