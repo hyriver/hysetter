@@ -63,7 +63,7 @@ source, the area of interest (AOI), and the output directory. You can find an ex
 configuration file in the
 [config_demo.yml](https://github.com/hyriver/hysetter/blob/main/config_demo.yml).
 
-![image](https://raw.githubusercontent.com/hyriver/hysetter/main/hs_help.svg){.align-center}
+![image](https://raw.githubusercontent.com/hyriver/hysetter/main/hs_help.svg)
 
 [![image](https://asciinema.org/a/660577.svg){.align-center}](https://asciinema.org/a/660577?autoplay=1)
 
