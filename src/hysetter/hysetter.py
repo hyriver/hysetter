@@ -3,24 +3,44 @@
 from __future__ import annotations
 
 import functools
+import shutil
 from dataclasses import dataclass
-from datetime import datetime  # noqa: TCH003
+from datetime import datetime  # noqa: TC003
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Annotated, Any, Literal, overload
 
 import yaml
-from pydantic import BaseModel, Field, ValidationError, model_validator
-from typing_extensions import Self
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    GetCoreSchemaHandler,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
+from pydantic_core import core_schema
+from typing_extensions import Self, SupportsIndex
 
-from . import aoi, forcing, nid, nlcd, nwis, soil, topo
+from hysetter.aoi import get_aoi
+from hysetter.forcing import get_forcing
+from hysetter.nid import get_nid
+from hysetter.nlcd import get_nlcd
+from hysetter.nwis import get_streamflow
+from hysetter.rasters import get_rasters
+from hysetter.soil import get_soil
+from hysetter.topo import get_topo
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from pydantic_core.core_schema import ValidationInfo
     from yaml.nodes import Node
 
 __all__ = [
+    "Config",
     "read_config",
     "write_config",
-    "Config",
 ]
 
 yaml_load = functools.partial(yaml.load, Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader))
@@ -81,32 +101,32 @@ class AOI(BaseModel):
     Parameters
     ----------
     huc_ids : list, optional
-        List of HUC IDs, by default ``None``.. The IDs must be strings and HUC
+        List of HUC IDs, by default ``None``. The IDs must be strings and HUC
         level will be determined by the length of the string (even numbers
         between 2 and 12).
     nhdv2_ids : list, optional
-        List of NHD Feature IDs, by default ``None``.. The IDs must be integers
+        List of NHD Feature IDs, by default ``None``. The IDs must be integers
         and are assumed to be NHDPlus V2 catchment IDs.
     gagesii_basins : list, optional
-        List of GAGES-II basin IDs, by default ``None``.. The IDs must be strings.
+        List of GAGES-II basin IDs, by default ``None``. The IDs must be strings.
     mainstem_main : int, optional
         NHDPlus V2 mainstem ID to get only its main upstream flowlines,
-        by default ``None``.. The ID must be an integer.
+        by default ``None``. The ID must be an integer.
     mainstem_tributaries : bool, optional
-        NHDPus V2 mainstem ID to get all its upstream tributaries, by default ``None``..
+        NHDPus V2 mainstem ID to get all its upstream tributaries, by default ``None``.
         The ID must be an integer.
     geometry_file : str, optional
-        Path to a geometry file, by default ``None``.. Supported file extensions are
+        Path to a geometry file, by default ``None``. Supported file extensions are
         ``.feather``, ``.parquet``, and any format supported by
         ``geopandas.read_file`` (e.g., ``.shp``, ``.geojson``, and ``.gpkg``).
     nhdv2_flowlines : bool, optional
         Whether to retrieve the NHDPlus V2 flowlines within the AOI, by default False.
     streamcat_attrs : list, optional
-        StreamCat attributes to retrieve, by default ``None``.. This will
+        StreamCat attributes to retrieve, by default ``None``. This will
         set the ``nhdv2_flowlines`` to True. Use ``pynhd.StreamCat().metrics_df``
         to get a dataframe of all available attributes with their descriptions.
     nldi_attrs : list, optional
-        List of slelect attributes to retrieve, by default ``None``..
+        List of slelect attributes to retrieve, by default ``None``.
         Use ``pynhd.nhdplus_attrs_s3()`` to get a dataframe of all available
         attributes with their descriptions.
     """
@@ -160,14 +180,23 @@ class Forcing(BaseModel):
     end_date : datetime
         End date of the forcing data.
     variables : list, optional
-        List of variables to retrieve, by default ``None``.. If not provided, all available
+        List of variables to retrieve, by default ``None``. If not provided, all available
         variables will be retrieved.
+    crop : bool, optional
+        Whether to crop the data to the geometry of the AOI, by default True.
+        If False, the data will be saved for the bounding box of the AOI.
+    geometry_buffer : int, optional
+        Buffer distance in meters to add to the geometry of the AOI before requesting
+        the data, by default 0. This is useful for cases where additional post-processing
+        is needed that are sensitive to the edges of the data.
     """
 
     source: Literal["daymet", "gridmet", "nldas2"]
     start_date: datetime
     end_date: datetime
     variables: list[str] | None = None
+    crop: bool = True
+    geometry_buffer: Annotated[float, Field(strict=True, ge=0)] = 0
 
 
 class Topo(BaseModel):
@@ -178,12 +207,59 @@ class Topo(BaseModel):
     resolution_m : int
         Resolution of the data in meters.
     derived_variables : list, optional
-        List of derived variables to calculate, by default ``None``.. Supported derived
+        List of derived variables to calculate, by default ``None``. Supported derived
         variables are "slope", "aspect", and "curvature".
+    crop : bool, optional
+        Whether to crop the data to the geometry of the AOI, by default True.
+        If False, the data will be saved for the bounding box of the AOI.
+    geometry_buffer : int, optional
+        Buffer distance in meters to add to the geometry of the AOI before requesting
+        the data, by default 0. This is useful for cases where additional post-processing
+        is needed that are sensitive to the edges of the data.
     """
 
     resolution_m: int
     derived_variables: list[Literal["slope", "aspect", "curvature"]] | None = None
+    crop: bool = True
+    geometry_buffer: Annotated[float, Field(strict=True, ge=0)] = 0
+
+
+class RemoteRasters(BaseModel):
+    """Remote raster data configuration.
+
+    Parameters
+    ----------
+    crop : bool, optional
+        Whether to crop the data to the geometry of the AOI, by default True.
+    geometry_buffer : float, optional
+        Buffer distance in meters to add to the AOI geometry before requesting data.
+
+    Notes
+    -----
+    Additional fields are treated as raster names (URLs). Raster names are sanitized:
+        - Lowercased
+        - Stripped of whitespace
+        - Spaces replaced with underscores
+    """
+
+    crop: bool = True
+    geometry_buffer: Annotated[float, Field(strict=True, ge=0)] = 0
+    model_config = ConfigDict(extra="allow", from_attributes=True)
+
+    @field_validator("*", mode="before")
+    @classmethod
+    def sanitize_keys(cls, v: Any, info: ValidationInfo) -> Any:
+        """Sanitize raster names (keys) and validate URL strings."""
+        if info.field_name not in ("crop", "geometry_buffer"):
+            if not isinstance(v, str):
+                raise ValueError(f"URL must be a string, got {type(v)}")
+            return v.strip()
+        return v
+
+    @property
+    def rasters(self) -> dict[str, str]:
+        """Return a dictionary of raster names and URLs."""
+        return {k: v for k, v in self.model_dump().items() if k not in ("crop", "geometry_buffer")}
 
 
 class Soil(BaseModel):
@@ -192,13 +268,23 @@ class Soil(BaseModel):
     Parameters
     ----------
     source : str
-        Source of the soil data. Supported sources are "soilgrids" and "gnatsgo".
+        Source of the soil data. Supported sources are``soilgrids``, ``gnatsgo``,
+        and ``polaris``.
     variables : list
         List of variables to retrieve. Each source has its own set of variables.
+    crop : bool, optional
+        Whether to crop the data to the geometry of the AOI, by default True.
+        If False, the data will be saved for the bounding box of the AOI.
+    geometry_buffer : int, optional
+        Buffer distance in meters to add to the geometry of the AOI before requesting
+        the data, by default 0. This is useful for cases where additional post-processing
+        is needed that are sensitive to the edges of the data.
     """
 
-    source: Literal["soilgrids", "gnatsgo"]
+    source: Literal["soilgrids", "gnatsgo", "polaris"]
     variables: list[str]
+    crop: bool = True
+    geometry_buffer: Annotated[float, Field(strict=True, ge=0)] = 0
 
 
 class NLCD(BaseModel):
@@ -221,12 +307,21 @@ class NLCD(BaseModel):
         List of years for descriptor data, by default ``None``., which defaults to
         the most recent data. Available years are 2021, 2019, 2016, 2013, 2011,
         2008, 2006, 2004, and 2001.
+    crop : bool, optional
+        Whether to crop the data to the geometry of the AOI, by default True.
+        If False, the data will be saved for the bounding box of the AOI.
+    geometry_buffer : int, optional
+        Buffer distance in meters to add to the geometry of the AOI before requesting
+        the data, by default 0. This is useful for cases where additional post-processing
+        is needed that are sensitive to the edges of the data.
     """
 
     cover: list[int] | None = None
     impervious: list[int] | None = None
     canopy: list[int] | None = None
     descriptor: list[int] | None = None
+    crop: bool = True
+    geometry_buffer: Annotated[float, Field(strict=True, ge=0)] = 0
 
 
 class NID(BaseModel):
@@ -278,19 +373,108 @@ class Streamflow(BaseModel):
         return self
 
 
+class FileList(list[Path]):
+    """A list of files in a directory, ensuring all elements are Path objects within the directory."""
+
+    def __init__(self, parent: str | Path) -> None:
+        """
+        Initialize the FileList object.
+
+        Parameters
+        ----------
+        parent : str | Path
+            The root directory containing the files.
+        """
+        self.parent = Path(parent).resolve()
+        super().__init__()
+
+    def append(self, file: str | Path) -> None:
+        """Append a file as a Path relative to the parent directory."""
+        super().append(self.parent / file)
+
+    def extend(self, files: Iterable[str | Path]) -> None:
+        """Extend the list with multiple files as Paths relative to the parent directory."""
+        super().extend(self.parent / f for f in files)
+
+    def mkdir(self, exist_ok: bool = True, parents: bool = True) -> None:
+        """Create the parent directory if it does not exist."""
+        self.parent.mkdir(exist_ok=exist_ok, parents=parents)
+
+    def rm_tree(self) -> None:
+        """Remove the directory and all its contents."""
+        if self.parent.exists():
+            shutil.rmtree(self.parent)
+
+    def __get_pydantic_core_schema__(self, handler: GetCoreSchemaHandler) -> core_schema.CoreSchema:
+        """Define Pydantic schema for serialization and validation."""
+        return core_schema.no_info_plain_validator_function(FileList._validate)
+
+    @classmethod
+    def _validate(cls, value: Any) -> FileList:
+        """Validate the value as a FileList object."""
+        if isinstance(value, FileList):
+            return value
+        elif isinstance(value, list):
+            return cls(Path.cwd())
+        raise TypeError(f"Cannot validate {value} as FileList")
+
+    @overload
+    def __getitem__(self, key: SupportsIndex, /) -> Path: ...
+
+    @overload
+    def __getitem__(self, key: slice, /) -> FileList: ...
+
+    def __getitem__(self, key: SupportsIndex | slice, /) -> Path | FileList:
+        """Retrieve an item or a slice."""
+        if isinstance(key, slice):
+            return FileList(self.parent, super().__getitem__(key))  # pyright: ignore[reportCallIssue]
+        return super().__getitem__(key)
+
+    @overload
+    def __setitem__(self, key: SupportsIndex, value: str | Path, /) -> None: ...
+
+    @overload
+    def __setitem__(self, key: slice, value: Iterable[str | Path], /) -> None: ...
+
+    def __setitem__(
+        self, key: SupportsIndex | slice, value: str | Path | Iterable[str | Path], /
+    ) -> None:
+        """Allow assignment by index, expanding the list if necessary."""
+        if isinstance(key, slice):
+            super().__setitem__(key, [self.parent / f for f in value])  # pyright: ignore[reportGeneralTypeIssues]
+        elif isinstance(key, int):
+            if key >= len(self):
+                self.extend([""] * (key - len(self) + 1))  # Expand the list
+            super().__setitem__(key, self.parent / value)  # pyright: ignore[reportOperatorIssue]
+        else:
+            raise TypeError("Index must be an integer or a slice.")
+
+    def __repr__(self) -> str:
+        """Return a string representation of the FileList object."""
+        files = "\n".join(str(f) for f in self)
+        return f"FileList({self.parent}, {len(self)} files):\n{files}"
+
+
 @dataclass
 class FilePaths:
     """File paths to store the data."""
 
     project: Path
     aoi_parquet: Path
-    flowlines: Path
-    forcing: Path
-    topo: Path
-    soil: Path
-    nlcd: Path
-    nid: Path
-    streamflow: Path
+    flowlines: FileList
+    streamcat_attrs: FileList
+    nldi_attrs: FileList
+    forcing: FileList
+    topo: FileList
+    soil: FileList
+    nlcd: FileList
+    nid: FileList
+    streamflow: FileList
+    remote_rasters: dict[str, FileList]
+
+    def rm_tree(self) -> None:
+        """Remove the directory and all its contents."""
+        shutil.rmtree(self.project)
 
 
 class Config(BaseModel):
@@ -307,17 +491,21 @@ class Config(BaseModel):
     aoi : AOI
         Area of interest.
     forcing : Forcing, optional
-        Forcing data, by default ``None``..
+        Forcing data, by default ``None``.
     topo : Topo, optional
-        Topographic data, by default ``None``..
+        Topographic data, by default ``None``.
     soil : Soil, optional
-        Soil data, by default ``None``..
+        Soil data, by default ``None``.
     nlcd : NLCD, optional
-        National Land Cover Database (NLCD) data, by default ``None``..
+        National Land Cover Database (NLCD) data, by default ``None``.
     nid : NID, optional
-        National Inventory of Dams (NID) data, by default ``None``..
+        National Inventory of Dams (NID) data, by default ``None``.
     streamflow : Streamflow, optional
-        Streamflow data from NWIS, by default ``None``..
+        Streamflow data from NWIS, by default ``None``.
+    remote_rasters : RemoteRasters, optional
+        Remote raster data, by default ``None``.
+    overwrite : bool, optional
+        Whether to overwrite existing data, by default ``False``.
     """
 
     project: Project
@@ -328,42 +516,49 @@ class Config(BaseModel):
     nlcd: NLCD | None = None
     nid: NID | None = None
     streamflow: Streamflow | None = None
-    file_paths: FilePaths = Field(default=None, init=False)
+    remote_rasters: RemoteRasters | None = None
+    overwrite: bool = False
+    file_paths: FilePaths = Field(default=None, init=False)  # pyright: ignore[reportAssignmentType]
 
     def __init__(self, **data: Any) -> None:
         super().__init__(**data)
         project_dir = Path(self.project.data_dir, self.project.name.replace(" ", "_"))
+        project_dir.mkdir(exist_ok=True, parents=True)
+        raster_names = list(self.remote_rasters.rasters) if self.remote_rasters else ["rasters"]
         self.file_paths = FilePaths(
             project=project_dir,
             aoi_parquet=Path(project_dir, "aoi.parquet"),
-            flowlines=Path(project_dir, "nhdv2_flowlines"),
-            forcing=Path(project_dir, "forcing"),
-            topo=Path(project_dir, "topo"),
-            soil=Path(project_dir, "soil"),
-            nlcd=Path(project_dir, "nlcd"),
-            nid=Path(project_dir, "nid"),
-            streamflow=Path(project_dir, "streamflow"),
+            flowlines=FileList(Path(project_dir, "nhdv2_flowlines")),
+            streamcat_attrs=FileList(Path(project_dir, "streamcat_attrs")),
+            nldi_attrs=FileList(Path(project_dir, "nldi_attrs")),
+            forcing=FileList(Path(project_dir, "forcing")),
+            topo=FileList(Path(project_dir, "topo")),
+            soil=FileList(Path(project_dir, "soil")),
+            nlcd=FileList(Path(project_dir, "nlcd")),
+            nid=FileList(Path(project_dir, "nid")),
+            streamflow=FileList(Path(project_dir, "streamflow")),
+            remote_rasters={n: FileList(Path(project_dir, n)) for n in raster_names},
         )
+        if self.overwrite:
+            self.file_paths.rm_tree()
 
     def get_data(self) -> None:
         """Iterate over non-None attributes."""
-        get_func = {
-            "aoi": aoi.get_aoi,
-            "forcing": forcing.get_forcing,
-            "topo": topo.get_topo,
-            "soil": soil.get_soil,
-            "nlcd": nlcd.get_nlcd,
-            "nid": nid.get_nid,
-            "streamflow": nwis.get_streamflow,
-        }
-        self.file_paths.project.mkdir(exist_ok=True, parents=True)
-        for name, func in get_func.items():
-            cfg = getattr(self, name)
-            if cfg is not None:
-                fdir = (
-                    self.file_paths.flowlines if name == "aoi" else getattr(self.file_paths, name)
-                )
-                func(cfg, fdir, self.file_paths.aoi_parquet)
+        get_aoi(self.aoi, self)
+        if self.forcing:
+            get_forcing(self.forcing, self)
+        if self.topo:
+            get_topo(self.topo, self)
+        if self.soil:
+            get_soil(self.soil, self)
+        if self.nlcd:
+            get_nlcd(self.nlcd, self)
+        if self.nid:
+            get_nid(self.nid, self)
+        if self.streamflow:
+            get_streamflow(self.streamflow, self)
+        if self.remote_rasters:
+            get_rasters(self.remote_rasters, self)
 
 
 def read_config(file_path: str | Path) -> Config:
