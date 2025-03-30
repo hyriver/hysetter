@@ -5,14 +5,15 @@ channels:
 dependencies:
 - python >=3.10
 - hysetter
-# plot deps
-- mapclassify
-- contextily
-- ipywidgets
-- exactextract >=0.2,<0.3
+# Examples
+- flox
 - ipykernel
 - ipywidgets
-- joblib >=1.4.2,<2
-- psutil >=6,<7
-- pytorch
-- tqdm >=4.66.5,<5
+- mapclassify
+- matplotlib
+- notebook
+- numba
+- numbagg
+- pytest
+- salib
+- sceua
