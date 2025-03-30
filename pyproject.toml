@@ -37,8 +37,8 @@ dynamic = [
 dependencies = [
   "boto3",
   "dask-expr",
-  "geopandas",
-  "pandas",
+  "geopandas>=1",
+  "pandas>=2",
   "planetary-computer",
   "pyarrow>=1.0.1",
   "pydantic>=2.7.1",
@@ -57,6 +57,7 @@ dependencies = [
 ]
 optional-dependencies.dev = [
   "flox",
+  "hydrosignatures>=0.19,<0.20",
   "ipykernel",
   "ipywidgets",
   "mapclassify",
@@ -65,6 +66,8 @@ optional-dependencies.dev = [
   "numba",
   "numbagg",
   "pytest",
+  "sceua",
+  "salib",
 ]
 optional-dependencies.docs = [
   "black",
