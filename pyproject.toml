@@ -74,6 +74,7 @@ optional-dependencies.docs = [
   "mkdocs",
   "mkdocs-jupyter",
   "mkdocs-material",
+  "mkdocs-minify-plugin",
   "mkdocstrings-python",
 ]
 optional-dependencies.lint = [
