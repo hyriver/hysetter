@@ -66,8 +66,8 @@ optional-dependencies.dev = [
   "numba",
   "numbagg",
   "pytest",
-  "sceua",
   "salib",
+  "sceua",
 ]
 optional-dependencies.docs = [
   "black",
@@ -197,6 +197,20 @@ lint.ignore = [
   "TRY003",
 ]
 
+lint.per-file-ignores."docs/examples/*.ipynb" = [
+  "D100",
+  "D101",
+  "D102",
+  "D103",
+  "D104",
+  "D105",
+  "D106",
+  "D107",
+  # specific type error ignored
+  "PGH003",
+  # use of "assert"
+  "T201",
+]
 lint.per-file-ignores."tests/*.py" = [
   "D100",
   "D101",
@@ -211,6 +225,7 @@ lint.per-file-ignores."tests/*.py" = [
   # use of "assert"
   "S101",
 ]
+
 lint.extend-safe-fixes = [
   # module level imports
   "E402",
