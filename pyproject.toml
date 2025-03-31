@@ -249,7 +249,7 @@ lint.pydocstyle.convention = "numpy"
 
 [tool.codespell]
 skip = "__pycache__,_build,.mypy_cache,.git,./htmlcov,.pixi,pixi.lock,**.ipynb"
-ignore-words-list = "gage,gages"
+ignore-words-list = "gage,gages,Loos"
 
 [tool.pytest.ini_options]
 addopts = "-v --cov --junitxml=junit.xml --durations=5"

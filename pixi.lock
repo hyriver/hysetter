@@ -7748,8 +7748,8 @@ packages:
   requires_python: '>=3.9'
 - pypi: .
   name: hysetter
-  version: 0.3.1.dev9+ga3ad2f0.d20250330
-  sha256: 18752566efa3ff9d5a7c63e98109f9602a732605c095d837612c77dd7a60a412
+  version: 0.3.1.dev16+ga1a628a.d20250331
+  sha256: efb729e3fdf627c524bf7c842119c432718c404ef4c4e976c02411856c38121c
   requires_dist:
   - boto3
   - dask-expr
