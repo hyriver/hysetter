@@ -116,3 +116,5 @@ pixi.lock
 *.egg-info
 .copilot-instructions.md
 data
+jats
+paper.pdf
