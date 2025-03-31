@@ -22,17 +22,6 @@ __all__ = ["compute_kge", "separate_snow", "to_numpy"]
 SMALL = 1e-6
 
 
-class WaterBalanceError(Exception):
-    """Exception raised when there is a water balance error."""
-
-    def __init__(self, component: str, value: float | np.float64) -> None:
-        self.message = f"Water balance error in {component} component: {value}."
-        super().__init__(self.message)
-
-    def __str__(self) -> str:
-        return self.message
-
-
 @njit("f8(f8[::1], f8[::1])", nogil=True)
 def compute_kge(sim: FloatArray, obs: FloatArray) -> float:
     """Compute the original Kling-Gupta Efficiency (2009)."""
