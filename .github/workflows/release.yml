@@ -4,7 +4,7 @@ on:
   push:
     tags:
     - v*
-  workflow_dispatch: # allows you to trigger manually
+  workflow_dispatch:
 
 permissions:
   contents: write
