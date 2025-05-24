@@ -12,7 +12,7 @@ from numba import njit, prange
 if TYPE_CHECKING:
     from numpy.typing import NDArray
 
-    FloatArray = NDArray[np.float64]
+    FloatArray = NDArray[np.floating[Any]]
     UIntArray = NDArray[np.uint32]
 
 nbconfig.THREADING_LAYER = "workqueue"
