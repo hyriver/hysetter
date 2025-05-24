@@ -65,7 +65,7 @@ configuration file in the
 
 ![image](https://raw.githubusercontent.com/hyriver/hysetter/main/hs_help.svg)
 
-[![image](https://asciinema.org/a/660577.svg){.align-center}](https://asciinema.org/a/660577?autoplay=1)
+[![image](https://asciinema.org/a/660577.svg)](https://asciinema.org/a/660577?autoplay=1)
 
 ## Contributing
 
