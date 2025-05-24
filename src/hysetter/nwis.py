@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 __all__ = ["get_streamflow"]
 
 
-def get_streamflow(streamflow_cfg: Streamflow, model_config: Config) -> None:
+def get_streamflow(data_cfg: Streamflow, model_config: Config) -> None:
     """Get streamflow data for the area of interest."""
     from pygeohydro import NWIS
 
@@ -23,30 +23,30 @@ def get_streamflow(streamflow_cfg: Streamflow, model_config: Config) -> None:
     sf_paths = model_config.file_paths.streamflow
     sf_paths.mkdir()
 
-    start = streamflow_cfg.start_date.strftime("%Y-%m-%d")
-    end = streamflow_cfg.end_date.strftime("%Y-%m-%d")
-    freq = "dv" if streamflow_cfg.frequency == "daily" else "iv"
+    start = data_cfg.start_date.strftime("%Y-%m-%d")
+    end = data_cfg.end_date.strftime("%Y-%m-%d")
+    freq = "dv" if data_cfg.frequency == "daily" else "iv"
     nwis = NWIS()
-    if streamflow_cfg.use_col:
-        if streamflow_cfg.use_col not in gdf.columns:
+    if data_cfg.use_col:
+        if data_cfg.use_col not in gdf.columns:
             console.print("Failed to get streamflow data.")
-            console.print(f"Column {streamflow_cfg.use_col} not found in the AOI file")
+            console.print(f"Column {data_cfg.use_col} not found in the AOI file")
             return
-        sf_paths[0] = "streamflow.nc"
+        sf_paths[0] = f"streamflow_{data_cfg.start_date}_{data_cfg.end_date}.nc"
         console.print(f"Getting streamflow from NWIS for {len(gdf)} stations")
         if not sf_paths[0].exists():
             try:
-                sids = gdf[streamflow_cfg.use_col].unique().tolist()  # pyright: ignore[reportCallIssue]
+                sids = gdf[data_cfg.use_col].unique().tolist()  # pyright: ignore[reportCallIssue]
                 qobs = nwis.get_streamflow(sids, (start, end), freq=freq, to_xarray=True)
                 if len(qobs) == 0:
                     console.print(
-                        f"Failed to get streamflow data for AOI for {streamflow_cfg.use_col} column"
+                        f"Failed to get streamflow data for AOI for {data_cfg.use_col} column"
                     )
                 qobs.to_netcdf(sf_paths[0])
             except Exception:
                 console.print_exception(show_locals=True, max_frames=4)
                 console.print(
-                    f"Failed to get streamflow data for AOI for {streamflow_cfg.use_col} column"
+                    f"Failed to get streamflow data for AOI for {data_cfg.use_col} column"
                 )
     else:
         for i, geom in track(
@@ -55,7 +55,7 @@ def get_streamflow(streamflow_cfg: Streamflow, model_config: Config) -> None:
             total=len(gdf),
             console=console,
         ):
-            sf_paths[i] = f"streamflow_geom_{i}.nc"
+            sf_paths[i] = f"streamflow_{data_cfg.start_date}_{data_cfg.end_date}_geom_{i}.nc"
             if sf_paths[i].exists():
                 continue
             try:
