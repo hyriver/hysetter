@@ -11,6 +11,19 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+## [0.3.1] - 2025-05-24
+
+### Fixed
+
+- Fix a bug in CLI where passing `--overwrite` removed the root directory instead of the
+    project directory. As a result, the root directory for the AOI file was removed
+    causing the CLI to fail.
+
+### Changed
+
+- For forcing and streamflow data, include the start and end dates in the file name to
+    avoid overwriting the files when the same data is requested for different dates.
+
 ## [0.3.0] - 2025-02-11
 
 This release many new features and improvements and culmination of several months of
