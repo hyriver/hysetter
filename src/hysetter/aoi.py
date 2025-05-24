@@ -179,6 +179,7 @@ def get_aoi(aoi_cfg: AOI, model_cfg: Config) -> None:
         console.print(f"Reading AOI from [bold green]{files.aoi_parquet.resolve()}")
         gdf = gpd.read_parquet(files.aoi_parquet)
     else:
+        files.project.mkdir(exist_ok=True, parents=True)
         gdf = None
         if aoi_cfg.huc_ids:
             console.print("Getting AOI: HUCs from WaterData.")
