@@ -11,7 +11,7 @@ aoi:
   # NHDPlusV2 catchment IDs (featureid)
   nhdv2_ids: []
   # GAGES-II basin IDs
-  gagesii_basins: ['02398863']
+  gagesii_basins: ['12181200']
   # NHDPlusV2 catchments belonging to the main flowlines upstream of
   # the provided mainstem ID
   # mainstem_main: '323742'
@@ -37,8 +37,8 @@ aoi:
 forcing:
   # Could be `daymet`, `gridmet`, or `nldas2`
   source: daymet
-  start_date: 2000-01-01
-  end_date: 2000-01-02
+  start_date: 2018-01-01
+  end_date: 2018-01-02
   # Valid variable names depend on the source
   variables: [prcp, tmin]
   # whether to crop the data to the geometry of the AOI, by default True
@@ -88,8 +88,8 @@ nid:
   within_aoi: true
 streamflow:
   # Get streamflows for all stations within AOIs
-  start_date: 2000-01-01
-  end_date: 2000-01-02
+  start_date: 2018-01-01
+  end_date: 2018-01-02
   # Options are `daily` or `instantaneous`
   frequency: daily
   # Whether to get streamflow for all stations within the AOIs
