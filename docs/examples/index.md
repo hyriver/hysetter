@@ -1,14 +1,18 @@
 # Tutorials
 
 The example notebooks have several additional dependencies that need to installed in
-addition to `hysetter`. You can install all the dependencies using `micromamba` (or
-`conda` or `mamba`) by downloading the `environment.yml` file from
-[here](https://raw.githubusercontent.com/hyriver/hysetter/main/environment.yml) and
-creating the environment using:
+addition to `hysetter`. You can install all the dependencies using
+[Pixi](https://pixi.sh/latest/). First, install Pixi and then run the following command
+in the root of the repository:
 
 ```bash
-micromamba env create -f environment.yml
+pixi install -e dev
 ```
+
+This will install all the dependencies needed to run the example notebooks in an
+isolated environment under `./.pixi/envs/dev`. If you are using an IDE like
+[VSCode](https://code.visualstudio.com/), it should automatically detect the
+environment, so you can select it as the interpreter for the notebooks.
 
 <div class="grid cards" markdown>
 
