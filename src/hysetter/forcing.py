@@ -55,7 +55,9 @@ def get_forcing(data_cfg: Forcing, model_cfg: Config) -> None:
         total=len(gdf),
         console=console,
     ):
-        forcing_dir[i] = f"{data_cfg.source}_geom_{i}.nc"
+        forcing_dir[i] = (
+            f"{data_cfg.source}_{data_cfg.start_date.date()}_{data_cfg.end_date.date()}_geom_{i}.nc"
+        )
         if forcing_dir[i].exists():
             continue
         try:
