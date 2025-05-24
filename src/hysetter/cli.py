@@ -68,7 +68,8 @@ def cli(config_yml: str, overwrite: bool = False) -> None:
 
     if overwrite:
         console.print("Removing existing data")
-        shutil.rmtree(cfg.project.data_dir, ignore_errors=True)
+        project_dir = Path(cfg.project.data_dir, cfg.project.name.replace(" ", "_"))
+        shutil.rmtree(project_dir, ignore_errors=True)
     try:
         cfg.get_data()
     except Exception:
