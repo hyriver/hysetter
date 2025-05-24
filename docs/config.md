@@ -170,3 +170,28 @@ streamflow:
 This configuration file allows you to customize various aspects of data retrieval and
 processing for your project. Adjust the settings as needed to suit your specific
 requirements.
+
+## Remote Raster Data (`remote_raster`)
+
+The `remote_raster` section is optional and defines settings for retrieving remote
+raster data. Any number of name, URL pairs can be specified. The URL should point to a
+raster file or a VRT file that references multiple raster files. The data will be
+downloaded and stored in the `data_dir` directory. Note that the name will be sanitized
+(strip, lower, replace space with `_`) since it is used as filenames (e.g.,
+`data_dir/twi/twi_geom_1.tif`). Similar to other gridded data, there are two additional
+options that can be specified:
+
+- `crop`: Boolean. Whether to crop the data to the geometry of the AOI. Default is
+    `true`.
+- `geometry_buffer`: Buffer distance in meters to add to the geometry of the AOI before
+    requesting the data. Default is `0`.
+
+Example:
+
+```yaml
+remote_raster:
+  twi: https://lynker-spatial.s3-us-west-2.amazonaws.com/gridded-resources/twi.vrt
+  fdr: https://lynker-spatial.s3-us-west-2.amazonaws.com/gridded-resources/fdr.vrt
+  crop: true
+  geometry_buffer: 0
+```
