@@ -45,7 +45,7 @@ dependencies = [
   "pydaymet>=0.19,<0.20",
   "pygeohydro>=0.19,<0.20",
   "pygridmet>=0.19,<0.20",
-  "pynhd>=0.19,<0.20",
+  "pynhd>=0.19.4,<0.20",
   "pynldas2>=0.19,<0.20",
   "pystac-client",
   "pyyaml",
@@ -309,22 +309,26 @@ platforms = [ "linux-64", "osx-64", "osx-arm64", "win-64" ]
 [tool.pixi.pypi-dependencies]
 hysetter = { path = ".", editable = true }
 
-[tool.pixi.dependencies]
-hdf5 = "*"
-libnetcdf = "*"
-libgdal-core = "*"
-
 [tool.pixi.feature.py310.dependencies]
 python = "~=3.10.0"
+hdf5 = "*"
+libnetcdf = "*"
+# rasterio is not yet compatible with libgdal 3.11
+libgdal-core = "<3.11"
 tomli = "*"
 
 [tool.pixi.feature.py313.dependencies]
 python = "~=3.13.0"
+hdf5 = "*"
+libnetcdf = "*"
+# rasterio is not yet compatible with libgdal 3.11
+libgdal-core = "<3.11"
+tomli = "*"
 
 [tool.pixi.environments]
 dev = { features = [ "dev", "py313" ] }
 test310 = { features = [ "test", "py310" ] }
-test312 = { features = [ "test", "py313" ] }
+test313 = { features = [ "test", "py313" ] }
 typecheck = { features = [ "typecheck", "py313" ] }
 lint = { features = [ "lint", "py313" ], no-default-feature = true }
 docs = { features = [ "docs", "dev", "py313" ] }
