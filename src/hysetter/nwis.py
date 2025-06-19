@@ -32,7 +32,7 @@ def get_streamflow(data_cfg: Streamflow, model_config: Config) -> None:
             console.print("Failed to get streamflow data.")
             console.print(f"Column {data_cfg.use_col} not found in the AOI file")
             return
-        sf_paths[0] = f"streamflow_{data_cfg.start_date}_{data_cfg.end_date}.nc"
+        sf_paths[0] = f"streamflow_{data_cfg.start_date.date()}_{data_cfg.end_date.date()}.nc"
         console.print(f"Getting streamflow from NWIS for {len(gdf)} stations")
         if not sf_paths[0].exists():
             try:
