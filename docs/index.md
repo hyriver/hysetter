@@ -14,8 +14,8 @@
 ## Features
 
 HySetter is an open-source Python package, built on HyRiver software stack, that
-provides a command-line interface (CLI) for subsetting hydroclimate data from the
-following data sources over conterminous United States (CONUS):
+provides a command-line interface (CLI) and Python API for subsetting hydroclimate data
+from the following data sources over conterminous United States (CONUS):
 
 - **Area Of Interest**: From any
   [HUC](https://www.usgs.gov/national-hydrography/watershed-boundary-dataset) level,
@@ -38,7 +38,9 @@ following data sources over conterminous United States (CONUS):
 - **Land Use/Land Cover, Canopy, Imperviousness, and Urban Descriptor**: From
   [MRLC](https://www.mrlc.gov/)
 
-Try HySetter in your browser by clicking on the Binder badge above.
+Try HySetter in your browser by clicking on the Binder badge above. You can refer to the
+[documentation](https://hysetter.readthedocs.io/latest/examples/) for more examples and
+details.
 
 ## Installation
 
@@ -49,23 +51,27 @@ pip install hysetter
 ```
 
 Alternatively, `hysetter` can be installed from the `conda-forge` repository using
-[micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html/):
+[micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html/),
+`conda`, or `mamba`:
 
 ```console
 micromamba install -c conda-forge hysetter
 ```
 
+You can use `conda` or `mamba` instead of `micromamba` if you prefer, but `micromamba`
+is recommended for its efficiency and ease of use.
+
 ## Quick start
 
-Once HySetter is installed, you can use the CLI to subset hydroclimate data via a
-configuration file. The configuration file is a YAML file that specifies the data
-source, the area of interest (AOI), and the output directory. You can find an example
-configuration file in the
+Once HySetter is installed, you can use its CLI or Python API to subset hydroclimate
+data via a configuration file. The configuration file is a YAML file that specifies the
+data source, the area of interest (AOI), and the output directory. You can find an
+example configuration file in the
 [config_demo.yml](https://github.com/hyriver/hysetter/blob/main/config_demo.yml).
 
-![image](https://raw.githubusercontent.com/hyriver/hysetter/main/hs_help.svg){.align-center}
+![image](https://raw.githubusercontent.com/hyriver/hysetter/main/hs_help.svg)
 
-[![image](https://asciinema.org/a/660577.svg){.align-center}](https://asciinema.org/a/660577?autoplay=1)
+[![image](https://asciinema.org/a/660577.svg)](https://asciinema.org/a/660577?autoplay=1)
 
 ## Acknowledgements
 
