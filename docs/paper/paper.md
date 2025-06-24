@@ -1,20 +1,23 @@
-______________________________________________________________________
-
-title: 'HySetter: A Python Package for Reproducible Hydroclimate Data Subsetting over
-CONUS' tags:
-
-- Python
-- hydrology
-- climate
-- data
-- subsetting
-- CONUS
-- reproducibility authors:
-- name: Taher Chegini orcid: 0000-0002-5430-6000 affiliation: 1 affiliations:
-- name: Lyles School of Civil Engineering, Purdue University, West Lafayette, IN, US
-  index: 1 date: 31 March 2025 bibliography: paper.bib
-
-______________________________________________________________________
+---
+title: 'HySetter: A Python Package for Reproducible Hydroclimate Data Subsetting over CONUS'
+tags:
+  - Python
+  - hydrology
+  - climate
+  - data
+  - subsetting
+  - CONUS
+  - reproducibility
+authors:
+  - name: Taher Chegini
+    orcid: 0000-0002-5430-6000
+    affiliation: '1'
+affiliations:
+  - index: 1
+    name: Lyles School of Civil Engineering, Purdue University, West Lafayette, IN, US
+date: 31 March 2025
+bibliography: paper.bib
+---
 
 # Summary
 
@@ -70,7 +73,7 @@ indicators.
 HySetter currently supports subsetting from the following data sources:
 
 - **Area of Interest**: HUC watersheds, GAGES-II basins, NHDPlusV2 catchments and their
-  attributes (StreamCat and NLDI), or user-defined geometries
+    attributes (StreamCat and NLDI), or user-defined geometries
 - **Drainage Network**: NHDPlusV2
 - **Climate Forcing**: Daymet, GridMET, NLDAS2
 - **Streamflow**: National Water Information System (NWIS)
@@ -78,7 +81,7 @@ HySetter currently supports subsetting from the following data sources:
 - **Topography**: 3D Elevation Program (3DEP)
 - **Dams**: National Inventory of Dams (NID)
 - **Land Use/Land Cover**: Multi-Resolution Land Characteristics (MRLC) products
-  including land cover, canopy, imperviousness, and urban descriptors
+    including land cover, canopy, imperviousness, and urban descriptors
 
 ![HySetter workflow showing data flow from remote dataset repositories and web services through HyRiver to create area-specific datasets for hydrological modeling.abel{fig:flowchart}](flowchart.png){width="350pt"}
 
