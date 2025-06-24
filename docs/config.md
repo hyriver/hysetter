@@ -25,24 +25,24 @@ The `aoi` section is required and defines the area of interest for your project.
 should specify only one of the following options:
 
 - `huc_ids`: A list of Hydrologic Unit Code (HUC) IDs. Can be a mix of different HUC
-  levels.
+    levels.
 - `nhdv2_ids`: A list of NHDPlusV2 catchment IDs (`featureid`).
 - `gagesii_basins`: A list of GAGES-II basin IDs.
 - `mainstem_main`: NHDPlusV2 catchments belonging to the main flowlines upstream of the
-  provided mainstem ID.
+    provided mainstem ID.
 - `mainstem_tributaries`: NHDPlusV2 catchments belonging to the tributaries upstream of
-  the provided mainstem ID.
+    the provided mainstem ID.
 - `geometry_file`: Path to a file containing geometry data. Can be parquet, feather, or
-  any format that `geopandas.read_file` accepts.
+    any format that `geopandas.read_file` accepts.
 
 Additional AOI options:
 
 - `nhdv2_flowlines` (optional): Boolean. If true, retrieves NHDPlusV2 flowlines within
-  the AOI.
+    the AOI.
 - `streamcat_attrs` (optional): A list of valid StreamCat attributes to get for
-  flowlines within the AOI.
+    flowlines within the AOI.
 - `nldi_attrs` (optional): A list of valid NLDI attributes to get for flowlines within
-  the AOI.
+    the AOI.
 
 Example:
 
@@ -61,7 +61,7 @@ The `forcing` section is optional and defines settings for retrieving forcing da
 - `start_date`: The start date for the data retrieval (YYYY-MM-DD format).
 - `end_date`: The end date for the data retrieval (YYYY-MM-DD format).
 - `variables`: A list of variables to retrieve. Valid variable names depend on the
-  chosen source.
+    chosen source.
 
 Example:
 
@@ -79,9 +79,9 @@ The `topo` section is optional and defines settings for topographic data retriev
 processing.
 
 - `resolution_m`: The desired resolution in meters. Use 10, 30, or 60 for faster
-  retrieval from 3DEP's static files.
+    retrieval from 3DEP's static files.
 - `derived_variables`: A list of derived variables to compute. Options are `slope`,
-  `aspect`, and `curvature`.
+    `aspect`, and `curvature`.
 
 Example:
 
@@ -97,7 +97,7 @@ The `soil` section is optional and defines settings for soil data retrieval.
 
 - `source`: The data source. Options are `soilgrids` or `gnatsgo`.
 - `variables`: A list of variables to retrieve. Valid options depend on the chosen
-  source.
+    source.
 
 Example:
 
@@ -136,7 +136,7 @@ nlcd:
 The `nid` section is optional and defines settings for retrieving NID data.
 
 - `within_aoi`: Boolean. If true, only returns dams within the defined AOIs. If false or
-  omitted, stores the full NID database.
+    omitted, stores the full NID database.
 
 Example:
 
@@ -155,7 +155,7 @@ data.
 - `frequency`: The data frequency. Options are `daily` or `instantaneous`.
 - `within_aoi`: Boolean. If true, gets streamflow for all stations within the AOIs.
 - `use_col`: A column name from the AOIs GeoDataFrame to use as the station IDs to query
-  NWIS for streamflow. When provided, `within_aoi` is ignored.
+    NWIS for streamflow. When provided, `within_aoi` is ignored.
 
 Example:
 
@@ -182,18 +182,16 @@ downloaded and stored in the `data_dir` directory. Note that the name will be sa
 options that can be specified:
 
 - `crop`: Boolean. Whether to crop the data to the geometry of the AOI. Default is
-  `true`.
+    `true`.
 - `geometry_buffer`: Buffer distance in meters to add to the geometry of the AOI before
-  requesting the data. Default is `0`.
+    requesting the data. Default is `0`.
 
 Example:
 
 ```yaml
 remote_raster:
-  twi:
-    https://lynker-spatial.s3-us-west-2.amazonaws.com/gridded-resources/twi.vrt
-  fdr:
-    https://lynker-spatial.s3-us-west-2.amazonaws.com/gridded-resources/fdr.vrt
+  twi: https://lynker-spatial.s3-us-west-2.amazonaws.com/gridded-resources/twi.vrt
+  fdr: https://lynker-spatial.s3-us-west-2.amazonaws.com/gridded-resources/fdr.vrt
   crop: true
   geometry_buffer: 0
 ```
