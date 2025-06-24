@@ -83,6 +83,7 @@ repos:
   hooks:
   - id: mdformat
     additional_dependencies:
-    # - mdformat-mkdocs[recommended]
+    - mdformat-mkdocs<4.3
+    - mdformat-ruff
     - mdformat-toc
-    args: [--wrap, '88']
+    args: [--exclude, docs/paper/paper.md, --wrap, '88']
