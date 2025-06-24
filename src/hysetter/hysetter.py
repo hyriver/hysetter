@@ -78,7 +78,7 @@ def _yaml_dump(o: Any, **kwargs: Any) -> str:
 class Project(BaseModel):
     """Project information.
 
-    Parameters
+    Attributes
     ----------
     name : str
         Name of the project.
@@ -98,7 +98,7 @@ class AOI(BaseModel):
     Only one of ``huc_ids``, ``nhdv2_ids``, ``gagesii_basins``, or
     ``geometry_file`` must be provided.
 
-    Parameters
+    Attributes
     ----------
     huc_ids : list, optional
         List of HUC IDs, by default ``None``. The IDs must be strings and HUC
@@ -171,7 +171,7 @@ class AOI(BaseModel):
 class Forcing(BaseModel):
     """Forcing data.
 
-    Parameters
+    Attributes
     ----------
     source : str
         Source of the forcing data. Supported sources are "daymet", "gridmet", and "nldas2".
@@ -202,7 +202,7 @@ class Forcing(BaseModel):
 class Topo(BaseModel):
     """Topographic data.
 
-    Parameters
+    Attributes
     ----------
     resolution_m : int
         Resolution of the data in meters.
@@ -227,7 +227,7 @@ class Topo(BaseModel):
 class RemoteRasters(BaseModel):
     """Remote raster data configuration.
 
-    Parameters
+    Attributes
     ----------
     crop : bool, optional
         Whether to crop the data to the geometry of the AOI, by default True.
@@ -265,7 +265,7 @@ class RemoteRasters(BaseModel):
 class Soil(BaseModel):
     """Soil data.
 
-    Parameters
+    Attributes
     ----------
     source : str
         Source of the soil data. Supported sources are``soilgrids``, ``gnatsgo``,
@@ -290,7 +290,7 @@ class Soil(BaseModel):
 class NLCD(BaseModel):
     """National Land Cover Database (NLCD) data.
 
-    Parameters
+    Attributes
     ----------
     cover : list, optional
         List of years for land cover data, by default ``None``., which defaults to
@@ -327,7 +327,7 @@ class NLCD(BaseModel):
 class NID(BaseModel):
     """National Inventory of Dams (NID) data.
 
-    Parameters
+    Attributes
     ----------
     within_aoi : bool
         Whether to retrieve the NID data within the AOI.
@@ -339,7 +339,7 @@ class NID(BaseModel):
 class Streamflow(BaseModel):
     """Streamflow data from NWIS.
 
-    Parameters
+    Attributes
     ----------
     start_date : datetime
         Start date of the streamflow data.
@@ -457,7 +457,36 @@ class FileList(list[Path]):
 
 @dataclass
 class FilePaths:
-    """File paths to store the data."""
+    """File paths to store the data.
+
+    Attributes
+    ----------
+    project : pathlib.Path
+        Path to the project directory.
+    aoi_parquet : Path
+        Path to the AOI data in Parquet format.
+    flowlines : FileList
+        List of NHDPlus V2 flowlines.
+    streamcat_attrs : FileList
+        List of StreamCat attributes.
+    nldi_attrs : FileList
+        List of NLDI attributes.
+    forcing : FileList
+        List of forcing data files.
+    topo : FileList
+        List of topographic data files.
+    soil : FileList
+        List of soil data files.
+    nlcd : FileList
+        List of NLCD data files.
+    nid : FileList
+        List of NID data files.
+    streamflow : FileList
+        List of streamflow data files.
+    remote_rasters : dict
+        Dictionary of remote raster data files, where keys are raster names and values are FileList objects
+        containing the file paths.
+    """
 
     project: Path
     aoi_parquet: Path
@@ -484,7 +513,7 @@ class Config(BaseModel):
     -----
     Only ``project`` and ``aoi`` are required. The rest are optional.
 
-    Parameters
+    Attributes
     ----------
     project : Project
         Project information.
