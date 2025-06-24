@@ -18,25 +18,25 @@ provides a command-line interface (CLI) and Python API for subsetting hydroclima
 from the following data sources over conterminous United States (CONUS):
 
 - **Area Of Interest**: From any
-  [HUC](https://www.usgs.gov/national-hydrography/watershed-boundary-dataset) level,
-  [GAGES-II basins](https://pubs.usgs.gov/publication/70046617),
-  [NHDPlusV2](https://www.nhdplus.com/NHDPlus/NHDPlusV2_home.php) catchments and their
-  attributes
-  ([StreamCat](https://www.epa.gov/national-aquatic-resource-surveys/streamcat-dataset)
-  and [NLDI](https://labs.waterdata.usgs.gov/docs/nldi/about-nldi/index.html)), or a
-  user-defined GeoDataFrame
+    [HUC](https://www.usgs.gov/national-hydrography/watershed-boundary-dataset) level,
+    [GAGES-II basins](https://pubs.usgs.gov/publication/70046617),
+    [NHDPlusV2](https://www.nhdplus.com/NHDPlus/NHDPlusV2_home.php) catchments and their
+    attributes
+    ([StreamCat](https://www.epa.gov/national-aquatic-resource-surveys/streamcat-dataset)
+    and [NLDI](https://labs.waterdata.usgs.gov/docs/nldi/about-nldi/index.html)), or a
+    user-defined GeoDataFrame
 - **Drainage Network**: From NHDPlusV2
 - **Forcing**: From [Daymet](https://daymet.ornl.gov/),
-  [GridMET](https://www.climatologylab.org/gridmet.html), or
-  [NLDAS2](https://ldas.gsfc.nasa.gov/nldas/v2/forcing)
+    [GridMET](https://www.climatologylab.org/gridmet.html), or
+    [NLDAS2](https://ldas.gsfc.nasa.gov/nldas/v2/forcing)
 - **Streamflow**: From [NWIS](https://nwis.waterdata.usgs.gov/nwis)
 - **Soil**: From
-  [gNATSGO](https://planetarycomputer.microsoft.com/dataset/gnatsgo-rasters), or
-  [SoilGrids](https://www.isric.org/explore/soilgrids)
+    [gNATSGO](https://planetarycomputer.microsoft.com/dataset/gnatsgo-rasters), or
+    [SoilGrids](https://www.isric.org/explore/soilgrids)
 - **Topography**: From [3DEP](https://www.usgs.gov/3d-elevation-program)
 - **Dam**: From [NID](https://nid.sec.usace.army.mil)
 - **Land Use/Land Cover, Canopy, Imperviousness, and Urban Descriptor**: From
-  [MRLC](https://www.mrlc.gov/)
+    [MRLC](https://www.mrlc.gov/)
 
 Try HySetter in your browser by clicking on the Binder badge above. You can refer to the
 [documentation](https://hysetter.readthedocs.io/latest/examples/) for more examples and
@@ -60,6 +60,14 @@ micromamba install -c conda-forge hysetter
 
 You can use `conda` or `mamba` instead of `micromamba` if you prefer, but `micromamba`
 is recommended for its efficiency and ease of use.
+
+For just installing HySetter's CLI, you can first install Pixi by following the
+its [installation instructions](https://pixi.sh/latest/installation/) for your
+platform. Then, you can install HySetter using the following command:
+
+```console
+pixi global install hysetter
+```
 
 ## Quick start
 
