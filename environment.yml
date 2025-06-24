@@ -6,7 +6,6 @@ dependencies:
 - python >=3.10
 - hysetter
 # Examples
-- libgdal-core <3.11
 - flox
 - ipykernel
 - ipywidgets
