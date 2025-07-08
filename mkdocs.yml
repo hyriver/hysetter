@@ -127,6 +127,7 @@ nav:
 - API Reference: reference.md
 - Release Notes: CHANGELOG.md
 - Contributing: CONTRIBUTING.md
+- License: LICENSE.md
 plugins:
 - search:
     separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'

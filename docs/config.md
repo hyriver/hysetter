@@ -24,7 +24,7 @@ project:
 The `aoi` section is required and defines the area of interest for your project. You
 should specify only one of the following options:
 
-- `huc_ids`: A list of Hydrologic Unit Code (HUC) IDs. Can be a mix of different HUC
+- `huc_ids`: A list of Hydrologic Unit Code (HUC) IDs. It can be a mix of different HUC
     levels.
 - `nhdv2_ids`: A list of NHDPlusV2 catchment IDs (`featureid`).
 - `gagesii_basins`: A list of GAGES-II basin IDs.
@@ -37,8 +37,8 @@ should specify only one of the following options:
 
 Additional AOI options:
 
-- `nhdv2_flowlines` (optional): Boolean. If true, retrieves NHDPlusV2 flowlines within
-    the AOI.
+- `nhdv2_flowlines` (optional): Boolean. If `true`, retrieve the NHDPlusV2 flowlines
+    within the AOI.
 - `streamcat_attrs` (optional): A list of valid StreamCat attributes to get for
     flowlines within the AOI.
 - `nldi_attrs` (optional): A list of valid NLDI attributes to get for flowlines within
@@ -78,7 +78,7 @@ forcing:
 The `topo` section is optional and defines settings for topographic data retrieval and
 processing.
 
-- `resolution_m`: The desired resolution in meters. Use 10, 30, or 60 for faster
+- `resolution_m`: The desired resolution in meters. Use `10`, `30`, or `60` for faster
     retrieval from 3DEP's static files.
 - `derived_variables`: A list of derived variables to compute. Options are `slope`,
     `aspect`, and `curvature`.
@@ -119,7 +119,7 @@ The `nlcd` section is optional and defines settings for retrieving NLCD data.
 Valid years:
 
 - Cover, Impervious, Descriptor: 2021, 2019, 2016, 2013, 2011, 2008, 2006, 2004, 2001
-- Canopy: Any year between 2011-2022 (inclusive)
+- Canopy: Any year between 2011–2022 (inclusive)
 
 Example:
 
@@ -135,8 +135,8 @@ nlcd:
 
 The `nid` section is optional and defines settings for retrieving NID data.
 
-- `within_aoi`: Boolean. If true, only returns dams within the defined AOIs. If false or
-    omitted, stores the full NID database.
+- `within_aoi`: Boolean. If `true`, only return dams within the defined AOIs. If `false`
+    or omitted, store the full NID database.
 
 Example:
 
@@ -153,7 +153,7 @@ data.
 - `start_date`: The start date for data retrieval (YYYY-MM-DD format).
 - `end_date`: The end date for data retrieval (YYYY-MM-DD format).
 - `frequency`: The data frequency. Options are `daily` or `instantaneous`.
-- `within_aoi`: Boolean. If true, gets streamflow for all stations within the AOIs.
+- `within_aoi`: Boolean. If `true`, get streamflow for all stations within the AOIs.
 - `use_col`: A column name from the AOIs GeoDataFrame to use as the station IDs to query
     NWIS for streamflow. When provided, `within_aoi` is ignored.
 
@@ -174,7 +174,7 @@ requirements.
 ## Remote Raster Data (`remote_raster`)
 
 The `remote_raster` section is optional and defines settings for retrieving remote
-raster data. Any number of name, URL pairs can be specified. The URL should point to a
+raster data. Any number of name/URL pairs can be specified. The URL should point to a
 raster file or a VRT file that references multiple raster files. The data will be
 downloaded and stored in the `data_dir` directory. Note that the name will be sanitized
 (strip, lower, replace space with `_`) since it is used as filenames (e.g.,
@@ -190,8 +190,10 @@ Example:
 
 ```yaml
 remote_raster:
-  twi: https://lynker-spatial.s3-us-west-2.amazonaws.com/gridded-resources/twi.vrt
-  fdr: https://lynker-spatial.s3-us-west-2.amazonaws.com/gridded-resources/fdr.vrt
+  twi:
+    https://lynker-spatial.s3-us-west-2.amazonaws.com/gridded-resources/twi.vrt
+  fdr:
+    https://lynker-spatial.s3-us-west-2.amazonaws.com/gridded-resources/fdr.vrt
   crop: true
   geometry_buffer: 0
 ```

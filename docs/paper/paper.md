@@ -62,6 +62,7 @@ This approach accommodates different technical backgrounds: novice users can cre
 simple configuration files without coding, while experienced users can programmatically
 generate configurations for complex analyses.
 
+[//]: # (TODO: the autoref links below are not working in the draft paper. Ensure they work in the final version.)
 \\autoref{fig:config-example} shows a typical configuration file, and
 \\autoref{fig:config-demo} demonstrates HySetter's command-line interface with progress
 indicators.

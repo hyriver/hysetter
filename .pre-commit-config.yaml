@@ -3,9 +3,9 @@ repos:
   rev: v5.0.0
   hooks:
   - id: check-added-large-files
-    args: [--maxkb=50000]
+    args: [--maxkb, '50000']
   - id: mixed-line-ending
-    args: [--fix=lf]
+    args: [--fix, lf]
   - id: check-ast
   - id: check-builtin-literals
   - id: check-case-conflict
@@ -24,7 +24,7 @@ repos:
   - id: pretty-format-json
     args: [--autofix, --no-ensure-ascii, --no-sort-keys]
   - id: trailing-whitespace
-    args: [--markdown-linebreak-ext=md]
+    args: [--markdown-linebreak-ext, md]
     exclude: \.(html|svg)$
 
 - repo: https://github.com/bwhmather/ssort
@@ -36,7 +36,7 @@ repos:
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: v0.12.0
   hooks:
-  - id: ruff
+  - id: ruff-check
     name: Linting with Ruff
     types_or: [python, jupyter]
     args: [--fix]
@@ -86,4 +86,4 @@ repos:
     - mdformat-mkdocs<4.3
     - mdformat-ruff
     - mdformat-toc
-    args: [--exclude, docs/paper/paper.md, --wrap, '88']
+    args: [--exclude, docs/paper/paper.md, --exclude, LICENSE.md, --wrap, '88']
