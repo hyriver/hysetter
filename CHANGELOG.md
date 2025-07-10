@@ -21,6 +21,19 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- Reformatted LICENSE to be more easily machine-readable by GitHub
+    [#9](https://github.com/hyriver/hysetter/pull/9). Contributed by
+    [Zeitsperre](https://github.com/Zeitsperre).
+- Included license in rendered documentation
+    [#9](https://github.com/hyriver/hysetter/pull/9). Contributed by
+    [Zeitsperre](https://github.com/Zeitsperre).
+- Small grammar fixes, some internal variable renaming
+    [#9](https://github.com/hyriver/hysetter/pull/9). Contributed by
+    [Zeitsperre](https://github.com/Zeitsperre).
+- Added `TODO` about `autoref` links in `paper.md`
+    [#9](https://github.com/hyriver/hysetter/pull/9). Contributed by
+    [Zeitsperre](https://github.com/Zeitsperre).
+
 ## [0.3.1] - 2025-05-24
 
 ### Fixed
