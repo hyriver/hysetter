@@ -1,4 +1,4 @@
-# HySetter: Hyroclimate Data Subsetter based on HyRiver
+# HySetter: Hydroclimate Data Subsetter based on HyRiver
 
 [![PyPi](https://img.shields.io/pypi/v/hysetter.svg)](https://pypi.python.org/pypi/hysetter)
 [![Conda Version](https://img.shields.io/conda/vn/conda-forge/hysetter.svg)](https://anaconda.org/conda-forge/hysetter)
@@ -15,7 +15,7 @@
 
 HySetter is an open-source Python package, built on HyRiver software stack, that
 provides a command-line interface (CLI) and Python API for subsetting hydroclimate data
-from the following data sources over conterminous United States (CONUS):
+from the following data sources over the conterminous United States (CONUS):
 
 - **Area Of Interest**: From any
     [HUC](https://www.usgs.gov/national-hydrography/watershed-boundary-dataset) level,
@@ -89,6 +89,6 @@ instructions.
 
 ## Acknowledgements
 
-This work is supported by Consortium of Universities for the Advancement of Hydrologic
-Science, Inc. ([CUAHSI](https://www.cuahsi.org/)) through the Hydroinformatics
-Innovation Fellowship program.
+This work is supported by the Consortium of Universities for the Advancement of
+Hydrologic Science, Inc. ([CUAHSI](https://www.cuahsi.org/)) through the
+Hydroinformatics Innovation Fellowship program.

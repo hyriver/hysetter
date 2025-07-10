@@ -63,8 +63,8 @@ def get_streamflow(data_cfg: Streamflow, model_config: Config) -> None:
                     "bBox": ",".join(f"{b:.06f}" for b in geom.bounds),
                     "outputDataTypeCd": freq,
                 }
-                siteinfo = nwis.get_info(query)
-                sids = siteinfo.loc[siteinfo.within(geom), "site_no"].unique().tolist()
+                site_info = nwis.get_info(query)
+                sids = site_info.loc[site_info.within(geom), "site_no"].unique().tolist()
                 qobs = nwis.get_streamflow(sids, (start, end), freq=freq, to_xarray=True)
                 if len(qobs) == 0:
                     console.print(f"No streamflow data found for AOI index {i}")
