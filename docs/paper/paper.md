@@ -62,14 +62,13 @@ This approach accommodates different technical backgrounds: novice users can cre
 simple configuration files without coding, while experienced users can programmatically
 generate configurations for complex analyses.
 
-[//]: # (TODO: the autoref links below are not working in the draft paper. Ensure they work in the final version.)
-\\autoref{fig:config-example} shows a typical configuration file, and
-\\autoref{fig:config-demo} demonstrates HySetter's command-line interface with progress
+Figure \ref{fig:config-example} shows a typical configuration file, and
+Figure \ref{fig:config-demo} demonstrates HySetter's command-line interface with progress
 indicators.
 
-![Example YAML configuration file for HySetter specifying project parameters, area of interest, and data sources.abel{fig:config-example}](config.png){width="300pt"}
+![Example YAML configuration file for HySetter specifying project parameters, area of interest, and data sources.\label{fig:config-example}](config.png){width="300pt"}
 
-![HySetter command-line interface showing real-time progress during data acquisition processes.abel{fig:config-demo}](cli.png)
+![HySetter command-line interface showing real-time progress during data acquisition processes.\label{fig:config-demo}](cli.png)
 
 HySetter currently supports subsetting from the following data sources:
 
@@ -84,11 +83,11 @@ HySetter currently supports subsetting from the following data sources:
 - **Land Use/Land Cover**: Multi-Resolution Land Characteristics (MRLC) products
     including land cover, canopy, imperviousness, and urban descriptors
 
-![HySetter workflow showing data flow from remote dataset repositories and web services through HyRiver to create area-specific datasets for hydrological modeling.abel{fig:flowchart}](flowchart.png){width="350pt"}
+![HySetter workflow showing data flow from remote dataset repositories and web services through HyRiver to create area-specific datasets for hydrological modeling.\label{fig:flowchart}](flowchart.png){width="350pt"}
 
 # Implementation
 
-HySetter's workflow is illustrated in \\autoref{fig:flowchart}, showing data flow from
+HySetter's workflow is illustrated in \autoref{fig:flowchart}, showing data flow from
 various sources through HyRiver to create subsets for specific areas. HySetter builds
 upon the HyRiver stack [@chegini2021hyriver], which provides access to numerous
 hydroclimate web services. While HyRiver requires Python programming knowledge, HySetter
