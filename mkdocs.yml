@@ -110,7 +110,7 @@ markdown_extensions:
     repo: hysetter
 
 extra:
-  homepage: https://docs.hyriver.io/
+  homepage: https://hysetter.readthedocs.io
   social:
   - icon: fontawesome/brands/twitter
     link: https://twitter.com/ContactHyRiver
