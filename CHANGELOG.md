@@ -9,6 +9,12 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Fixed
 
+### Added
+
+## [0.3.2] - 2025-07-17
+
+### Fixed
+
 - Fix a bug in the NWIS module where due to having ":" in filenames, Windows users were
     unable to download streamflow data. The bug was fixed by removing hours and minutes
     from the file name. [#7](https://github.com/hyriver/hysetter/issues/7)
