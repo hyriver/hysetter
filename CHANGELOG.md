@@ -11,6 +11,12 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+## [0.3.4] - 2025-07-17
+
+### Fixed
+
+- Fix the license file issue for the `conda-forge` build.
+
 ## [0.3.2] - 2025-07-17
 
 ### Fixed
