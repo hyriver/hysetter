@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import shutil
 from typing import TYPE_CHECKING
 
 from mkdocs.structure.files import File, Files
@@ -12,7 +13,7 @@ if TYPE_CHECKING:
 
 changelog = Path(__file__).parent.parent / "CHANGELOG.md"
 contributing = Path(__file__).parent.parent / "CONTRIBUTING.md"
-license = Path(__file__).parent.parent / "LICENSE.md"
+license = Path(__file__).parent / "LICENSE.md"
 
 
 def on_files(files: Files, config: MkDocsConfig):
@@ -33,6 +34,13 @@ def on_files(files: Files, config: MkDocsConfig):
             use_directory_urls=config.use_directory_urls,
         )
     )
+    license_org = Path(__file__).parent.parent / "LICENSE"
+    if license_org.exists() and not license.exists():
+        shutil.copy(license_org, license)
+    else:
+        if not license.exists():
+            raise FileNotFoundError(f"License file {license} does not exist.")
+
     files.append(
         File(
             path=license.name,
