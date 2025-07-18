@@ -1,15 +1,20 @@
 # HySetter: Hydroclimate Data Subsetter based on HyRiver
 
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.08301/status.svg)](https://doi.org/10.21105/joss.08301)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/hyriver/hysetter/HEAD?labpath=docs%2Fexamples)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 [![PyPi](https://img.shields.io/pypi/v/hysetter.svg)](https://pypi.python.org/pypi/hysetter)
 [![Conda Version](https://img.shields.io/conda/vn/conda-forge/hysetter.svg)](https://anaconda.org/conda-forge/hysetter)
-[![CodeCov](https://codecov.io/gh/hyriver/hysetter/branch/main/graph/badge.svg)](https://codecov.io/gh/hyriver/hysetter)
 [![Python Versions](https://img.shields.io/pypi/pyversions/hysetter.svg)](https://pypi.python.org/pypi/hysetter)
+
+[![CodeCov](https://codecov.io/gh/hyriver/hysetter/branch/main/graph/badge.svg)](https://codecov.io/gh/hyriver/hysetter)
 [![Downloads](https://static.pepy.tech/badge/hysetter)](https://pepy.tech/project/hysetter)
 
 [![Security Status](https://img.shields.io/badge/security-bandit-green.svg)](https://github.com/PyCQA/bandit)
 [![CodeFactor](https://www.codefactor.io/repository/github/hyriver/hysetter/badge)](https://www.codefactor.io/repository/github/hyriver/hysetter)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/hyriver/hysetter/HEAD?labpath=docs%2Fexamples)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
 ## Features
 
@@ -51,8 +56,7 @@ pip install hysetter
 ```
 
 Alternatively, `hysetter` can be installed from the `conda-forge` repository using
-[micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html/),
-`conda`, or `mamba`:
+[micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html/):
 
 ```console
 micromamba install -c conda-forge hysetter
