@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import shutil
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from mkdocs.structure.files import File, Files
@@ -37,9 +37,8 @@ def on_files(files: Files, config: MkDocsConfig):
     license_org = Path(__file__).parent.parent / "LICENSE"
     if license_org.exists() and not license.exists():
         shutil.copy(license_org, license)
-    else:
-        if not license.exists():
-            raise FileNotFoundError(f"License file {license} does not exist.")
+    elif not license.exists():
+        raise FileNotFoundError(f"License file {license} does not exist.")
 
     files.append(
         File(
