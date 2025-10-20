@@ -6,7 +6,7 @@ import functools
 import shutil
 from dataclasses import dataclass
 from datetime import datetime  # noqa: TC003
-from pathlib import Path
+from pathlib import Path, PosixPath, WindowsPath
 from typing import TYPE_CHECKING, Annotated, Any, Literal, overload
 
 import yaml
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from pydantic_core.core_schema import ValidationInfo
-    from yaml.nodes import Node
+    from yaml import ScalarNode
 
 __all__ = [
     "Config",
@@ -44,35 +44,26 @@ __all__ = [
 ]
 
 yaml_load = functools.partial(yaml.load, Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader))
-SafeDumper = getattr(yaml, "CSafeDumper", yaml.SafeDumper)
+
+Dumper = getattr(yaml, "CSafeDumper", yaml.SafeDumper)
 
 
-class _PathDumper(SafeDumper):  # pyright: ignore[reportGeneralTypeIssues,reportUntypedBaseClass]
-    """A dumper that can represent pathlib.Path objects as strings."""
-
-    def represent_data(self, data: Any) -> Node:
-        """Represent Path objects as strings."""
-        if isinstance(data, Path):
-            return self.represent_scalar("tag:yaml.org,2002:str", str(data))
-        return super().represent_data(data)
+def _path_representer(dumper: Dumper, data: Path | WindowsPath | PosixPath) -> ScalarNode:
+    """Represent a Path as a string in YAML."""
+    return dumper.represent_scalar("tag:yaml.org,2002:str", data.as_posix())
 
 
-def _yaml_dump(o: Any, **kwargs: Any) -> str:
-    """Dump YAML.
+Dumper.add_representer(Path, _path_representer)
+Dumper.add_representer(PosixPath, _path_representer)
+Dumper.add_representer(WindowsPath, _path_representer)
 
-    Notes
-    -----
-    When python/mypy#1484 is solved, this can be ``functools.partial``
-    """
-    return yaml.dump(
-        o,
-        Dumper=_PathDumper,
-        stream=None,
-        default_flow_style=False,
-        indent=2,
-        sort_keys=False,
-        **kwargs,
-    )
+yaml_dump = functools.partial(
+    yaml.dump,
+    Dumper=Dumper,
+    default_flow_style=False,
+    indent=2,
+    sort_keys=False,
+)
 
 
 class Project(BaseModel):
@@ -620,4 +611,4 @@ def write_config(config: Config, file_path: str | Path) -> None:
     file_path : str or pathlib.Path
         Path to the configuration file.
     """
-    Path(file_path).write_text(_yaml_dump(config.model_dump()))
+    Path(file_path).write_text(yaml_dump(config.model_dump()))
