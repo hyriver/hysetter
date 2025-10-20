@@ -1,6 +1,6 @@
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v5.0.0
+  rev: v6.0.0
   hooks:
   - id: check-added-large-files
     args: [--maxkb, '50000']
@@ -34,7 +34,7 @@ repos:
     name: Sort top level statements with ssort
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.12.3
+  rev: v0.14.1
   hooks:
   - id: ruff-check
     name: Linting with Ruff
@@ -60,7 +60,7 @@ repos:
     - tomli
 
 - repo: https://github.com/tox-dev/pyproject-fmt
-  rev: v2.6.0
+  rev: v2.11.0
   hooks:
   - id: pyproject-fmt
     name: Apply a consistent format to pyproject.toml
@@ -72,14 +72,14 @@ repos:
     args: [--autofix, --indent, '2']
 
 - repo: https://github.com/rhysd/actionlint
-  rev: v1.7.7
+  rev: v1.7.8
   hooks:
   - id: actionlint
     files: .github/workflows/
     args: [-ignore, SC1090, -ignore, SC2046, -ignore, SC2086, -ignore, SC2129, -ignore, SC2155, -ignore, property "date"]
 
 - repo: https://github.com/executablebooks/mdformat
-  rev: 0.7.22
+  rev: 1.0.0
   hooks:
   - id: mdformat
     additional_dependencies:
